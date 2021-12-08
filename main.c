@@ -2,6 +2,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <string.h>
 #define STEP 5
 
 
@@ -75,23 +76,30 @@ struct Text readText(){
 
 struct Text del_rep(struct Text text){
 
+
     wchar_t *check_words;
     wchar_t *word_now;
-    struct Text new_text;
-    new_text.sentences = malloc(text.n*(sizeof (struct Sentence*)));
+    struct Text new_text=text;
+
+
+    //new_text.sentences = malloc(text.n*(sizeof (struct Sentence*)));
 
     int ch_kol=0;
-    int new_i=0;
-    for(int i=0;i<text.n;i++){
-        check_words=text.sentences[i]->words;
-        int c_len=text.sentences[i]->len;
+    //int new_i=0;
+    int len_of_txt=new_text.n;
+
+
+    for(int i=0;i<len_of_txt;i++){
+        check_words=new_text.sentences[i]->words;
+        //int c_len=new_text.sentences[i]->len;
         ch_kol=0;
 
-        for(int j=i;j<text.n;j++){
-            word_now=text.sentences[j]->words;
-            int len=text.sentences[j]->len;
+        for(int j=i+1;j<len_of_txt;j++){
+            word_now=new_text.sentences[j]->words;
+           // wprintf(L" сравнение %ls  %ls\n",check_words,word_now);
+            int len=new_text.sentences[j]->len;
             int check_symb=0;
-            //if(len==c_len)
+            ////посимвольное сравнение
                 for(int k=0;k<len;k++){
                     if(towupper(word_now[k])== towupper(check_words[k])){
                         check_symb=1;
@@ -100,26 +108,37 @@ struct Text del_rep(struct Text text){
                         break;
                     }
                 }
+            ////
             if(check_symb){
+
+                memmove(&new_text.sentences[j],&new_text.sentences[j+1],(len_of_txt-j)*sizeof(struct Sentence*));
+                len_of_txt--;
+                j--;
+//                for (int q = 0; q < len_of_txt; q++) {
+//
+//                    wprintf(L" %ls   ",text.sentences[q]->words);
+//
+//                }
                 ch_kol++;
             }
 
-
-
+            //puts("");
+            //printf("\n%d %d\n",len_of_txt,j);
         }
-        //wprintf(L"%ls>>> \n",check_words);
-        if(ch_kol==1){
+
+        if(ch_kol==0){
             //wprintf(L"%ls \n",check_words);
-            new_text.sentences[new_i]=check_words;
-            new_i++;
+            //new_text.sentences[new_i]=check_words;
+            //new_i++;
 
 
         }
     }
 
-    new_text.n=new_i;
+    new_text.n=len_of_txt;
 
     return new_text;
+
 }
 
 int main() {
@@ -129,23 +148,24 @@ int main() {
     struct Text text = readText();
     struct Text new_text = del_rep(text);
 
-    for(int i=0;i<new_text.n;i++){
-        wprintf(L"%ls \n",new_text.sentences[i]);
+
+//    for(int i=0;i<new_text.n;i++){
+//        wprintf(L"%ls \n",new_text.sentences[i]->words);
+//    }
+
+/*    int *txt= malloc(5*sizeof(int));
+    for(int i=0;i<5;i++){
+        struct Sentence *sent=readSentence();
+        txt[i]=sent->len;
+    }
+    for(int i=0;i<5;i++){
+        printf("%d ",txt[i]);
     }
 
-//    int *txt= malloc(5*sizeof(int));
-//    for(int i=0;i<5;i++){
-//        struct Sentence *sent=readSentence();
-//        txt[i]=sent->len;
-//    }
-//    for(int i=0;i<5;i++){
-//        printf("%d ",txt[i]);
-//    }
+    wprintf(L"%ls",sent->words);
 
-//    wprintf(L"%ls",sent->words);
-//
-//    free(sent->words);
-//    free(sent);
-    //printf("Hello, He!\n");
+    free(sent->words);
+    free(sent);
+    printf("Hello, He!\n");*/
     return 0;
 }
