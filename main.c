@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include "del_rep.h"
 #define STEP 5
 
 
@@ -74,29 +75,21 @@ struct Text readText(){
 
 }
 
-struct Text del_rep(struct Text text){
+/*struct Text del_rep(struct Text text){
 
 
     wchar_t *check_words;
     wchar_t *word_now;
     struct Text new_text=text;
-
-
-    //new_text.sentences = malloc(text.n*(sizeof (struct Sentence*)));
-
-    int ch_kol=0;
-    //int new_i=0;
     int len_of_txt=new_text.n;
 
 
     for(int i=0;i<len_of_txt;i++){
         check_words=new_text.sentences[i]->words;
-        //int c_len=new_text.sentences[i]->len;
-        ch_kol=0;
 
         for(int j=i+1;j<len_of_txt;j++){
             word_now=new_text.sentences[j]->words;
-           // wprintf(L" сравнение %ls  %ls\n",check_words,word_now);
+
             int len=new_text.sentences[j]->len;
             int check_symb=0;
             ////посимвольное сравнение
@@ -114,32 +107,21 @@ struct Text del_rep(struct Text text){
                 memmove(&new_text.sentences[j],&new_text.sentences[j+1],(len_of_txt-j)*sizeof(struct Sentence*));
                 len_of_txt--;
                 j--;
-//                for (int q = 0; q < len_of_txt; q++) {
-//
-//                    wprintf(L" %ls   ",text.sentences[q]->words);
-//
-//                }
-                ch_kol++;
+
             }
 
-            //puts("");
-            //printf("\n%d %d\n",len_of_txt,j);
-        }
-
-        if(ch_kol==0){
-            //wprintf(L"%ls \n",check_words);
-            //new_text.sentences[new_i]=check_words;
-            //new_i++;
-
 
         }
+
     }
 
     new_text.n=len_of_txt;
 
     return new_text;
 
-}
+}*/
+struct Text task2(){}
+
 
 int main() {
 
@@ -147,11 +129,33 @@ int main() {
 
     struct Text text = readText();
     struct Text new_text = del_rep(text);
+    ///////////////////////////////////////////////////////////////////////////////////
+    /*
+    int operation;
+    printf("Для получения маски по каждому предложению введите 1.\nЧтобы удалить все предложения, в которых нет заглавных букв в начале слова введите 2."
+          "\nЧтобы отсортировать слова в предложении по количеству гласных букв в слове введите 3."
+          "\nЧтобы для каждого предложения получить количество одинаковых слов в строке введите 4."
+          "\nЧтобы завершить программу введите любое число.\n--->");
+       scanf("%d",&operation);
+    switch (operation) {
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            puts("");
 
 
-//    for(int i=0;i<new_text.n;i++){
-//        wprintf(L"%ls \n",new_text.sentences[i]->words);
-//    }
+    }*/
+    ///////////////////////////////////////////////////////////////////////////////////////
+    for(int i=0;i<new_text.n;i++){
+        wprintf(L"%ls \n",new_text.sentences[i]->words);
+    }
+
 
 /*    int *txt= malloc(5*sizeof(int));
     for(int i=0;i<5;i++){
@@ -167,5 +171,10 @@ int main() {
     free(sent->words);
     free(sent);
     printf("Hello, He!\n");*/
+//    for(int i=0;i<text.n;i++){
+//        free(text.sentences[i]->words);
+//    }
+//    free(&text);
+
     return 0;
 }

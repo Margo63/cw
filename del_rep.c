@@ -1,60 +1,67 @@
 //
 // Created by Маргарита  on 07.12.2021.
 //
-//#include <stdio.h>
-//#include <wchar.h>
-//#include <stdlib.h>
-//#include <locale.h>
-//
-//
-//struct Text del_rep(struct Text text){
-//
-//    wchar_t *check_words;
-//    wchar_t *word_now;
-//    struct Text new_text;
-//    new_text.sentences = malloc(text.n*(sizeof (struct Sentence*)));
-//
-//    int ch_kol=0;
-//    int new_i=0;
-//    for(int i=0;i<text.n;i++){
-//        check_words=text.sentences[i]->words;
-//        int c_len=text.sentences[i]->len;
-//        ch_kol=0;
-//
-//        for(int j=i;j<text.n;j++){
-//            word_now=text.sentences[j]->words;
-//            int len=text.sentences[j]->len;
-//            int check_symb=0;
-//            //if(len==c_len)
-//            for(int k=0;k<len;k++){
-//                if(towupper(word_now[k])== towupper(check_words[k])){
-//                    check_symb=1;
-//                }else{
-//                    check_symb=0;
-//                    break;
-//                }
-//            }
-//            if(check_symb){
-//                ch_kol++;
-//            }
-//
-//
-//
-//        }
-//        //wprintf(L"%ls>>> \n",check_words);
-//        if(ch_kol==1){
-//            //wprintf(L"%ls \n",check_words);
-//            new_text.sentences[new_i]=check_words;
-//            new_i++;
-//
-//
-//        }
-//    }
-//
-//    new_text.n=new_i;
-//
-//    return new_text;
-//}
+#include <stdio.h>
+#include <wchar.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
+#include "del_rep.h"
+struct Sentence{
+    wchar_t *words;
+    int size;
+    int len;
+
+};
+struct Text{
+    struct Sentence **sentences;
+    int size;
+    int n;
+};
+
+struct Text del_rep(struct Text text){
 
 
+    wchar_t *check_words;
+    wchar_t *word_now;
+    struct Text new_text=text;
+    int len_of_txt=new_text.n;
+
+
+    for(int i=0;i<len_of_txt;i++){
+        check_words=new_text.sentences[i]->words;
+
+        for(int j=i+1;j<len_of_txt;j++){
+            word_now=new_text.sentences[j]->words;
+
+            int len=new_text.sentences[j]->len;
+            int check_symb=0;
+            ////посимвольное сравнение
+                for(int k=0;k<len;k++){
+                    if(towupper(word_now[k])== towupper(check_words[k])){
+                        check_symb=1;
+                    }else{
+                        check_symb=0;
+                        break;
+                    }
+                }
+            ////
+            if(check_symb){
+
+                memmove(&new_text.sentences[j],&new_text.sentences[j+1],(len_of_txt-j)*sizeof(struct Sentence*));
+                len_of_txt--;
+                j--;
+
+            }
+
+
+        }
+
+    }
+
+    new_text.n=len_of_txt;
+
+    return new_text;
+
+}
 
