@@ -36,7 +36,7 @@ struct Sentence* readSentence(){
     struct Sentence *sentence= malloc(sizeof (struct Sentence));
     sentence->words=buf;
     sentence->size=size;
-    sentence->len=n;
+    sentence->len=n-1;
 
     return sentence;
 }
@@ -120,15 +120,95 @@ struct Text readText(){
     return new_text;
 
 }*/
-struct Text task2(){}
+struct Text task2(struct Text text){
 
 
+    int len_of_txt=text.n;
+    struct Text text_now;
+    text_now.sentences= malloc(len_of_txt*sizeof (struct Sentence*));
+
+//    for(int q=0;q<len_of_txt;q++){
+//        puts("ok");
+//        wprintf(L"%ls",text_now.sentences[q]->words);
+//
+//    }
+
+    for(int q=0;q<len_of_txt;q++){
+        //puts("okokokokok");
+        text_now.sentences[q]->words=text.sentences[q]->words;
+
+    }
+    //text.sentences[len_of_txt-1]->words="change\0";
+    //wprintf(L"%ls\n",text.sentences[len_of_txt-1]->words);
+    for(int q=0;q<len_of_txt;q++){
+       // puts("okqweqweqw");
+        wprintf(L"%ls\n",text_now.sentences[q]->words);
+        //wprintf(L"%ls",text.sentences[q]->words);
+
+    }
+    int new_len=0;
+    for(int i=0;i<len_of_txt;i++){
+
+        wchar_t *tr;
+        wchar_t *str=text_now.sentences[i]->words;
+        int full_len=text_now.sentences[i]->len;
+
+        wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));
+        wchar_t *token=wcstok(str,L" ,.",&tr);
+        int kol_of_words=0;
+        //в цикле получаю слова из предложения
+        do {
+            //wprintf(L"%ls\n", token);
+            list_of_words[kol_of_words++]=token;
+            token = wcstok(NULL, L" ,.", &tr);
+
+        } while (token!=NULL);
+        int kol_up=0;
+       // printf("kol of words=%d\n",kol_of_words);
+        for(int q=0;q<kol_of_words;q++){
+            if(list_of_words[q][0]!= towupper(list_of_words[q][0])){
+                //break;
+            }else{
+                kol_up++;
+            }
+           // wprintf(L"%ls %d\n", list_of_words[q],kol_up);
+        }
+        if(kol_up!=kol_of_words){
+           // wprintf(L"not rigntT_T->%ls \n", text.sentences[i]->words);
+
+           /* free(text.sentences[len_of_txt]);
+            memmove(&text.sentences[i],&text.sentences[i+1],(len_of_txt-i)*sizeof(struct Sentence*));
+            len_of_txt--;
+            i--;*/
+        }else{
+
+        }
+
+    }
+    //text_now.n=new_len;
+
+    return text_now;
+
+
+}
+
+
+/*
+struct Sentence* task2(struct Sentence sent){
+    wprintf(L"%ls",sent.words);
+    wchar_t *str=sent.words;
+    str="change";
+    sent.words=str;
+    return &sent;
+}*/
 int main() {
 
     setlocale(LC_ALL,"");
 
     struct Text text = readText();
     struct Text new_text = del_rep(text);
+   // new_text.sentences[0]= task2(*new_text.sentences[0]);
+    new_text= task2(new_text);
     ///////////////////////////////////////////////////////////////////////////////////
     /*
     int operation;
@@ -152,8 +232,10 @@ int main() {
 
     }*/
     ///////////////////////////////////////////////////////////////////////////////////////
+
+
     for(int i=0;i<new_text.n;i++){
-        wprintf(L"%ls \n",new_text.sentences[i]->words);
+        wprintf(L"\nstring---->  %d : %ls %d %d\n",i,new_text.sentences[i]->words,new_text.sentences[i]->len,new_text.n);
     }
 
 

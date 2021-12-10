@@ -30,24 +30,29 @@ struct Text del_rep(struct Text text){
 
     for(int i=0;i<len_of_txt;i++){
         check_words=new_text.sentences[i]->words;
-
+        int len_w_check=new_text.sentences[i]->len;
         for(int j=i+1;j<len_of_txt;j++){
             word_now=new_text.sentences[j]->words;
-
+            int len_w_now=new_text.sentences[j]->len;
             int len=new_text.sentences[j]->len;
             int check_symb=0;
             ////посимвольное сравнение
-                for(int k=0;k<len;k++){
-                    if(towupper(word_now[k])== towupper(check_words[k])){
-                        check_symb=1;
-                    }else{
-                        check_symb=0;
+            if(len_w_check==len_w_now) {
+                for (int k = 0; k < len; k++) {
+                    if (towupper(word_now[k]) == towupper(check_words[k])) {
+
+                        check_symb = 1;
+                    } else {
+                        check_symb = 0;
                         break;
                     }
                 }
+            }
             ////
             if(check_symb){
 
+                //wprintf(L"%ls %ls\n",word_now,check_words);
+                free(new_text.sentences[len_of_txt]);
                 memmove(&new_text.sentences[j],&new_text.sentences[j+1],(len_of_txt-j)*sizeof(struct Sentence*));
                 len_of_txt--;
                 j--;
