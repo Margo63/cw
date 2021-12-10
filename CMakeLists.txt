@@ -3,4 +3,4 @@ project(cw C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(cw main.c del_rep.c del_rep.h)
+add_executable(cw main.c text_processing.c text_processing.h)

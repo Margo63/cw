@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
-#include "del_rep.h"
+#include "text_processing.h"
 struct Sentence{
     wchar_t *words;
     int size;
@@ -67,6 +67,53 @@ struct Text del_rep(struct Text text){
     new_text.n=len_of_txt;
 
     return new_text;
+}
+
+struct Text task2(struct Text text){
+
+
+    int len_of_txt=text.n;
+    for(int i=0;i<len_of_txt;i++){
+        int full_len=text.sentences[i]->len;
+        wchar_t *str= malloc(sizeof (wchar_t)*(full_len+2));
+        wcscpy(str,text.sentences[i]->words);
+        //wprintf(L"sent=%ls\ncopy= %ls\n\n",text.sentences[i]->words,str);
+
+        wchar_t *tr;
+        wchar_t *token=wcstok(str,L" ,.",&tr);
+
+        wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));
+        int kol=0;
+        do {
+            list_of_words[kol++]=token;
+            token = wcstok(NULL, L" ,.", &tr);
+        } while (token!=NULL);
+
+
+
+        int kol_up=0;
+        // printf("kol of words=%d\n",kol_of_words);
+        for(int q=0;q<kol;q++){
+            if(list_of_words[q][0]== towupper(list_of_words[q][0])){
+                kol_up++;
+            }
+            // wprintf(L"%ls %d\n", list_of_words[q],kol_up);
+        }
+        if(kol_up!=kol){
+            // wprintf(L"not rigntT_T->%ls \n", text.sentences[i]->words);
+
+            free(text.sentences[len_of_txt]);
+            memmove(&text.sentences[i],&text.sentences[i+1],(len_of_txt-i)*sizeof(struct Sentence*));
+            len_of_txt--;
+            i--;
+        }
+
+        free(list_of_words);
+
+    }
+    text.n=len_of_txt;
+    return text;
+
 
 }
 
