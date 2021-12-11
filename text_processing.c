@@ -22,17 +22,17 @@ struct Text{
 struct Text del_rep(struct Text text){
 
 
-    wchar_t *check_words;
+    wchar_t *check_words;//строчки для сравнения
     wchar_t *word_now;
     struct Text new_text=text;
     int len_of_txt=new_text.n;
 
 
     for(int i=0;i<len_of_txt;i++){
-        check_words=new_text.sentences[i]->words;
+        check_words=new_text.sentences[i]->words;//check_words пробегается по всем предложениям
         int len_w_check=new_text.sentences[i]->len;
         for(int j=i+1;j<len_of_txt;j++){
-            word_now=new_text.sentences[j]->words;
+            word_now=new_text.sentences[j]->words;//текущее предложение
             int len_w_now=new_text.sentences[j]->len;
             int len=new_text.sentences[j]->len;
             int check_symb=0;
@@ -49,7 +49,7 @@ struct Text del_rep(struct Text text){
                 }
             }
             ////
-            if(check_symb){
+            if(check_symb){//если предложения совпали сдвигаем массив так, чтобы удалить повторяющееся предложение
 
                 //wprintf(L"%ls %ls\n",word_now,check_words);
                 free(new_text.sentences[len_of_txt]);
@@ -73,16 +73,17 @@ struct Text task2(struct Text text){
 
 
     int len_of_txt=text.n;
+
     for(int i=0;i<len_of_txt;i++){
         int full_len=text.sentences[i]->len;
         wchar_t *str= malloc(sizeof (wchar_t)*(full_len+2));
-        wcscpy(str,text.sentences[i]->words);
-        //wprintf(L"sent=%ls\ncopy= %ls\n\n",text.sentences[i]->words,str);
+        wcscpy(str,text.sentences[i]->words);//копируем полученное предложение в str
+
 
         wchar_t *tr;
         wchar_t *token=wcstok(str,L" ,.",&tr);
 
-        wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));
+        wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));//массив из слов
         int kol=0;
         do {
             list_of_words[kol++]=token;
@@ -92,15 +93,14 @@ struct Text task2(struct Text text){
 
 
         int kol_up=0;
-        // printf("kol of words=%d\n",kol_of_words);
+
         for(int q=0;q<kol;q++){
             if(list_of_words[q][0]== towupper(list_of_words[q][0])){
                 kol_up++;
             }
-            // wprintf(L"%ls %d\n", list_of_words[q],kol_up);
+
         }
-        if(kol_up!=kol){
-            // wprintf(L"not rigntT_T->%ls \n", text.sentences[i]->words);
+        if(kol_up!=kol){//если не все слова с заглавной буквы
 
             free(text.sentences[len_of_txt]);
             memmove(&text.sentences[i],&text.sentences[i+1],(len_of_txt-i)*sizeof(struct Sentence*));
