@@ -83,7 +83,7 @@ struct Text task2(struct Text text){
         wchar_t *tr;
         wchar_t *token=wcstok(str,L" ,.",&tr);
 
-        free(str);
+
         wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));//массив из слов
         int kol=0;
         do {
@@ -112,7 +112,7 @@ struct Text task2(struct Text text){
            // free(list_of_words[f]);
         }
         free(list_of_words);
-
+        free(str);
     }
     text.n=len_of_txt;
     return text;
@@ -129,15 +129,12 @@ struct Arr{
 struct Arr** task4 (struct Text text){
     int len_of_txt=text.n;
     struct Arr** arr_get= malloc(len_of_txt*sizeof (struct Arr*));
-//    for(int s=0;s<len_of_txt;s++){
-//        arr_get[s]= malloc(20*sizeof (struct Arr));//решить проблему с памятью
-//    }
 
 
 
     for(int i=0;i<len_of_txt;i++) {
         int full_len = text.sentences[i]->len;
-        wchar_t *str = malloc(sizeof(wchar_t) * (full_len + 2));
+        wchar_t* str = malloc(sizeof(wchar_t) * (full_len + 2));
         wcscpy(str, text.sentences[i]->words);
         //wprintf(L"sent=%ls\ncopy= %ls\n\n",text.sentences[i]->words,str);
 
@@ -193,21 +190,10 @@ struct Arr** task4 (struct Text text){
 //            wprintf(L" %d: %ls \n",arr_get[i][y].kol_repeat,arr_get[i][y].word);
 //        }
 
+        free(list_of_words);
+        //free(str);
     }
-    //puts("//////////////////////////////////////");
-    /*
-        for(int i=0;i<len_of_txt;i++){
-            int len=arr_get[i][0].len_rep;
-            //printf("%d",len);
-            for(int z=0;z<len;z++){
-                //printf("s ");
-                wprintf(L"%d %ls:%d; ",i,arr_get[i][z].word,arr_get[i][z].kol_repeat);
-            }
-            puts("");
 
-        }
-
-    */
     return arr_get;
 }
 

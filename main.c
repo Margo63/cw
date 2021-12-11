@@ -131,6 +131,8 @@ struct Text task3(struct Text text){
     int len_of_txt=text.n;
     for(int i=0;i<len_of_txt;i++){
         wchar_t* sent=text.sentences[i]->words;
+
+
     }
 
     return text;
@@ -148,9 +150,9 @@ int main() {
         wprintf(L"\nstring---->  %d : %ls %d %d\n",i,new_text.sentences[i]->words,new_text.sentences[i]->len,new_text.n);
     }
 
-
+    task3(new_text);
     ///////////////////////////////////////////////////////////////////////////////////
-
+/*
     int operation;
     printf("Для получения маски по каждому предложению введите 1.\nЧтобы удалить все предложения, в которых нет заглавных букв в начале слова введите 2."
           "\nЧтобы отсортировать слова в предложении по количеству гласных букв в слове введите 3."
@@ -181,7 +183,13 @@ int main() {
                 }
                 puts("");
 
+
+
             }
+            for(int f=0;f<new_text.n;f++){
+                free(arr[f]);
+            }
+            free(arr);
 
         }
             break;
@@ -190,7 +198,7 @@ int main() {
 
 
     }
-
+*/
     ///////////////////////////////////////////////////////////////////////////////////////
 
 
