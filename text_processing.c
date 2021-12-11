@@ -83,6 +83,7 @@ struct Text task2(struct Text text){
         wchar_t *tr;
         wchar_t *token=wcstok(str,L" ,.",&tr);
 
+        free(str);
         wchar_t **list_of_words= malloc(full_len*sizeof (wchar_t*));//массив из слов
         int kol=0;
         do {
@@ -107,7 +108,9 @@ struct Text task2(struct Text text){
             len_of_txt--;
             i--;
         }
-
+        for(int f=0;f<kol;f++){
+           // free(list_of_words[f]);
+        }
         free(list_of_words);
 
     }
@@ -116,4 +119,96 @@ struct Text task2(struct Text text){
 
 
 }
+
+struct Arr{
+    int kol_repeat;
+    wchar_t* word;
+    int len_rep;
+};
+
+struct Arr** task4 (struct Text text){
+    int len_of_txt=text.n;
+    struct Arr** arr_get= malloc(len_of_txt*sizeof (struct Arr*));
+//    for(int s=0;s<len_of_txt;s++){
+//        arr_get[s]= malloc(20*sizeof (struct Arr));//решить проблему с памятью
+//    }
+
+
+
+    for(int i=0;i<len_of_txt;i++) {
+        int full_len = text.sentences[i]->len;
+        wchar_t *str = malloc(sizeof(wchar_t) * (full_len + 2));
+        wcscpy(str, text.sentences[i]->words);
+        //wprintf(L"sent=%ls\ncopy= %ls\n\n",text.sentences[i]->words,str);
+
+        wchar_t *tr;
+        wchar_t *token = wcstok(str, L" ,.", &tr);
+
+        wchar_t **list_of_words = malloc(full_len * sizeof(wchar_t *));
+        int kol = 0;
+        do {
+            list_of_words[kol++] = token;
+            token = wcstok(NULL, L" ,.", &tr);
+        } while (token != NULL);
+
+        arr_get[i]= malloc(kol*sizeof (struct Arr));
+
+
+        // int max=0;
+        int kol_arr=0;
+        for(int q=0;q<kol;q++){
+            int kol_rep=0;
+            wchar_t *word_check=list_of_words[q];
+
+            for(int w=q+1;w<kol;w++){
+                //  wprintf(L"%d:%ls  %d:%ls ",q,list_of_words[q],w,list_of_words[w]);
+
+
+
+                if(wcscmp(word_check,list_of_words[w])==0){
+                    kol_rep++;
+                    memmove(&list_of_words[w],&list_of_words[w+1],(kol-w)*sizeof (wchar_t*));
+                    w--;
+                    kol--;
+                }
+
+            }
+
+            // wprintf(L"%d %d %ls %d \n",i,kol_arr,word_now,kol_rep+1);
+
+            arr_get[i][kol_arr].word=word_check;
+            arr_get[i][kol_arr].kol_repeat=kol_rep;
+            //wprintf(L"%d %d '%ls' ",i,kol_arr,arr_get[0][0].word);
+            kol_arr++;
+
+
+
+
+
+
+        }
+        arr_get[i][0].len_rep=kol;
+        //  wprintf(L"%ls\n",arr_get[0][0].word);
+//        for(int y=0;y<kol;y++){
+//            wprintf(L" %d: %ls \n",arr_get[i][y].kol_repeat,arr_get[i][y].word);
+//        }
+
+    }
+    //puts("//////////////////////////////////////");
+    /*
+        for(int i=0;i<len_of_txt;i++){
+            int len=arr_get[i][0].len_rep;
+            //printf("%d",len);
+            for(int z=0;z<len;z++){
+                //printf("s ");
+                wprintf(L"%d %ls:%d; ",i,arr_get[i][z].word,arr_get[i][z].kol_repeat);
+            }
+            puts("");
+
+        }
+
+    */
+    return arr_get;
+}
+
 
