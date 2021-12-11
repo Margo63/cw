@@ -129,14 +129,86 @@ struct Arr{
 
 struct Text task3(struct Text text){
     int len_of_txt=text.n;
-    for(int i=0;i<len_of_txt;i++){
-        wchar_t* sent=text.sentences[i]->words;
+    wchar_t sym[]=L"aeyuioEUIOAуеёэоаыяиюЮИЯЫАОЭЁЕУ";
+
+    for(int i=0;i<len_of_txt;i++) {
+        int full_len = text.sentences[i]->len;
+        wchar_t* str = malloc(sizeof(wchar_t) * (full_len +2));
+        wcscpy(str, text.sentences[i]->words);
+
+        wchar_t *tr;
+        wchar_t *token = wcstok(str, L" ,.", &tr);
+
+        wchar_t **list_of_words = malloc(full_len * sizeof(wchar_t *));
+        int kol = 0;
+        while (token != NULL){
+            list_of_words[kol++] = token;
+            token = wcstok(NULL, L" ,.", &tr);
+        }
+        int lenght=0;
 
 
+        wchar_t *change= malloc(sizeof(wchar_t) * (full_len +2));
+        wcscpy(change,text.sentences[i]->words);
+        //wprintf(L"I %ls I",change);
+
+        for(int q=0;q<kol-1;q++){
+            wchar_t *vowels_a,*vowels_b;
+
+
+
+            wchar_t *word_a=list_of_words[q];
+            wchar_t *word_b=list_of_words[q+1];
+
+            // wchar_t arr_vowels_a[wcslen(word_a)];
+
+            vowels_a = wcspbrk (word_a, sym);
+            //wprintf(L"%ls:",word_a);
+            int kol_a=0,kol_b=0;
+
+            while (vowels_a != NULL)
+            {
+                kol_a++;
+                vowels_a = wcspbrk (vowels_a+1,sym);
+            }
+            //wprintf(L"'%d'\n",kol_a);
+/////////////\\\\\\\\\\\\\\
+
+            vowels_b = wcspbrk (word_b, sym);
+            // wprintf(L"%ls:",word_b);
+            while (vowels_b != NULL)
+            {
+                kol_b++;
+                vowels_b = wcspbrk (vowels_b+1,sym);
+            }
+
+            // wprintf(L"'%d'\n",kol_b);
+
+            if(kol_b>kol_a){
+                list_of_words[q]=word_b;
+                list_of_words[q+1]=word_a;
+
+
+                //memmove(&text.sentences[i]->words[],&change[],kol_b)
+            }
+
+
+        }
+
+
+        for(int h=0;h<kol;h++){
+            wprintf(L"%ls ",list_of_words[h]);
+        }
+        //wprintf(L"full=%d",full_len);
+
+        puts("\n");
     }
+
 
     return text;
 }
+
+
 
 
 int main() {
