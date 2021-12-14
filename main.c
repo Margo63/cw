@@ -171,7 +171,8 @@ struct Text task3(struct Text text){
                 kol_a++;
                 vowels_a = wcspbrk (vowels_a+1,sym);
             }
-            //wprintf(L"'%d'\n",kol_a);
+
+            wprintf(L"'%d'\n",kol_a);
 /////////////\\\\\\\\\\\\\\
 
             vowels_b = wcspbrk (word_b, sym);
@@ -182,9 +183,9 @@ struct Text task3(struct Text text){
                 vowels_b = wcspbrk (vowels_b+1,sym);
             }
 
-            // wprintf(L"'%d'\n",kol_b);
+            wprintf(L"'%d'\n",kol_b);
 
-            if(kol_b>kol_a){
+            if(kol_b<kol_a){
                 list_of_words[q]=word_b;
                 list_of_words[q+1]=word_a;
 
@@ -196,7 +197,7 @@ struct Text task3(struct Text text){
         }
 
 
-        for(int h=0;h<kol;h++){
+       for(int h=0;h<kol;h++){
             wprintf(L"%ls ",list_of_words[h]);
         }
         //wprintf(L"full=%d",full_len);
@@ -208,7 +209,105 @@ struct Text task3(struct Text text){
     return text;
 }
 
+struct Mask{
+    wchar_t **masks;
+};
 
+struct Text task1(struct Text text){
+    int len_of_txt=text.n;
+
+    for(int i=0;i<len_of_txt;i++) {
+        int max=0;
+        int full_len = text.sentences[i]->len;
+        wchar_t *str = malloc(sizeof(wchar_t) * (full_len + 2));
+        wcscpy(str, text.sentences[i]->words);
+
+        wchar_t *tr;
+        wchar_t *token = wcstok(str, L" ,.", &tr);
+
+        wchar_t **list_of_words = malloc(full_len * sizeof(wchar_t *));
+        int kol = 0;
+
+        while (token != NULL) {
+            list_of_words[kol++] = token;
+            //if(wcslen(list_of_words[kol])>max)max=wcslen(list_of_words[kol]);
+            token = wcstok(NULL, L" ,.", &tr);
+        }
+        int id=0;
+        for(int h=0;h<kol;h++ ){
+
+            if(max < wcslen(list_of_words[h])){
+                max= wcslen(list_of_words[h]);
+                id=h;
+            }
+
+        }
+
+
+        wchar_t *mask_first= malloc(sizeof (wchar_t)*(max+2));//максимальной длины
+        wchar_t *mask_sec= malloc(sizeof (wchar_t)*(max+2));
+
+        if(kol>1){
+            int z;
+            int min_len;
+            if(wcslen(list_of_words[0])<wcslen(list_of_words[1])){
+                min_len=wcslen(list_of_words[0]);
+            }else{
+                min_len=wcslen(list_of_words[1]);
+            }
+            for(z=0;z< min_len;z++){
+                if(list_of_words[0][z]==list_of_words[1][z]){
+                    mask_first[z]=list_of_words[0][z];
+                }else{
+                    mask_first[z]='?';
+                }
+            }
+            if(wcslen(list_of_words[0])!= wcslen(list_of_words[1])){
+                mask_first[z]='*';
+            }
+        }else{
+            wcscpy(mask_first,list_of_words[0]);
+        }
+
+        wprintf(L"%d fir=%ls\n",i,mask_first);
+
+
+        for(int q=1;q<kol-1;q++){
+
+            wchar_t* word_now=list_of_words[q];
+            wchar_t* word_next=list_of_words[q+1];
+
+            int min_len;
+            if(wcslen(word_now)<wcslen(word_next)){
+                min_len=wcslen(word_now);
+            }else{
+                min_len=wcslen(word_next);
+            }
+
+            //wprintf(L"%d ",min_len);
+            int index;
+            for(index=0;index< min_len;index++){
+                wprintf(L"%c %c %c\n",word_now[index],word_next[index],mask_first[index]);
+                if(word_now[index]==word_next[index]/*==mask_first[index]*/){
+                    wprintf(L"равны \n");
+//                    mask_first[index]=word_now[index];
+                }else{
+                    wprintf(L"ne равны \n");
+                    mask_first[index]='?';
+               }
+            }
+            if(wcslen(word_now)!= wcslen(word_next)){
+                mask_first[index]='*';
+            }
+
+
+        }
+
+        wprintf(L"%d %ls\n",i,mask_first);
+    }
+
+    return text;
+}
 
 
 int main() {
@@ -222,24 +321,27 @@ int main() {
         wprintf(L"\nstring---->  %d : %ls %d %d\n",i,new_text.sentences[i]->words,new_text.sentences[i]->len,new_text.n);
     }
 
-    task3(new_text);
+   // task3(new_text);
     ///////////////////////////////////////////////////////////////////////////////////
-/*
+    /*
+    int k=1;
+while(k){
     int operation;
     printf("Для получения маски по каждому предложению введите 1.\nЧтобы удалить все предложения, в которых нет заглавных букв в начале слова введите 2."
-          "\nЧтобы отсортировать слова в предложении по количеству гласных букв в слове введите 3."
-          "\nЧтобы для каждого предложения получить количество одинаковых слов в строке введите 4."
-          "\nЧтобы завершить программу введите любое другое число.\n--->");
-       scanf("%d",&operation);
+           "\nЧтобы отсортировать слова в предложении по количеству гласных букв в слове введите 3."
+           "\nЧтобы для каждого предложения получить количество одинаковых слов в строке введите 4."
+           "\nЧтобы завершить программу введите 5.\n--->");
+    scanf("%d",&operation);
     switch (operation) {
         case 1:
             break;
         case 2:{
-                new_text= task2(new_text);
-                for(int i=0;i<new_text.n;i++){
-                    wprintf(L"%ls",new_text.sentences[i]->words);
-                }
-          }
+            new_text= task2(new_text);
+            for(int i=0;i<new_text.n;i++){
+                wprintf(L"%ls",new_text.sentences[i]->words);
+            }
+            puts("");
+        }
             break;
         case 3:
             break;
@@ -265,12 +367,17 @@ int main() {
 
         }
             break;
+        case 5:{
+            k=0;
+        }break;
         default:
             puts("");
 
 
     }
+}
 */
+
     ///////////////////////////////////////////////////////////////////////////////////////
 
 
