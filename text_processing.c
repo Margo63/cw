@@ -19,6 +19,12 @@ struct Text{
     int n;
 };
 
+struct Mask{
+    wchar_t *masks;
+};
+
+
+
 struct Text del_rep(struct Text text){
 
 
@@ -68,6 +74,128 @@ struct Text del_rep(struct Text text){
 
     return new_text;
 }
+
+
+struct Mask* task1(struct Text text){
+    int len_of_txt=text.n;
+    struct Mask *mask= malloc(sizeof (struct Mask*)*len_of_txt);
+
+    wchar_t **list_of_words;
+    for(int i=0;i<len_of_txt;i++) {
+        int max=0;
+        int full_len = text.sentences[i]->len;
+        wchar_t str[full_len + 2];// = malloc(sizeof(wchar_t) * (full_len + 2));
+        wcscpy(str, text.sentences[i]->words);
+
+        wchar_t *tr;
+        wchar_t *token = wcstok(str, L" ,.", &tr);
+
+        list_of_words = malloc(full_len * sizeof(wchar_t *));
+        int kol = 0;
+
+        while (token != NULL) {
+            list_of_words[kol++] = token;
+            //if(wcslen(list_of_words[kol])>max)max=wcslen(list_of_words[kol]);
+            token = wcstok(NULL, L" ,.", &tr);
+        }
+
+        int id=0;
+        for(int h=0;h<kol;h++ ){
+
+            if(max < wcslen(list_of_words[h])){
+                max= wcslen(list_of_words[h]);
+                id=h;
+            }
+
+        }
+
+
+        wchar_t *mask_first= malloc(sizeof (wchar_t)*(max+2));//максимальной длины
+
+        if(kol>1){
+            int z;
+            int min_len;
+            if(wcslen(list_of_words[0])<wcslen(list_of_words[1])){
+                min_len=wcslen(list_of_words[0]);
+            }else{
+                min_len=wcslen(list_of_words[1]);
+            }
+
+            for(z=0;z< min_len;z++){
+                if(list_of_words[0][z]==list_of_words[1][z]){
+                    mask_first[z]=list_of_words[0][z];
+                }else{
+                    mask_first[z]='?';
+                }
+            }
+            if(wcslen(list_of_words[0])!= wcslen(list_of_words[1])){
+                mask_first[z]='*';
+            }
+        }else{
+            wcscpy(mask_first,list_of_words[0]);
+            mask[i].masks=mask_first;
+            continue;
+        }
+
+        //wprintf(L"%d fir=%ls\n",i,mask_first);
+
+
+        for(int q=1;q<kol-1;q++){
+
+            wchar_t* word_now=list_of_words[q];
+            wchar_t* word_next=list_of_words[q+1];
+
+            int min_len;
+
+            if(wcslen(word_now)<wcslen(word_next)){
+                min_len=wcslen(word_now);
+            }else{
+                min_len=wcslen(word_next);
+            }
+
+            //wprintf(L"%d ",min_len);
+            int index;
+
+            for(index=0;index< min_len;index++){
+                //wprintf(L"%c %c %c\n",word_now[index],word_next[index],mask_first[index]);
+                if(word_now[index]==word_next[index] && word_next[index]==mask_first[index] && word_now[index]==mask_first[index]){
+                    //wprintf(L"равны \n");
+//                    mask_first[index]=word_now[index];
+
+
+                }else{
+                    // wprintf(L"ne равны \n");
+                    mask_first[index]='?';
+                }
+            }
+
+            if(wcslen(word_now)!= wcslen(word_next)){
+                if(mask_first[index-1]!='*'){
+                    mask_first[index]=L'*';
+                    mask_first[index+1]=L'\0';
+                }else{
+                    mask_first[index]= L'\0';
+                }
+
+            }
+            //wprintf(L"%d %ls\n",i,mask_first);
+
+        }
+        mask[i].masks=mask_first;
+
+        //free(str);
+
+
+        //free(list_of_words);
+        //free(mask_first);
+    }
+
+    //free(list_of_words);
+
+    return mask;
+}
+
+
 
 struct Text task2(struct Text text){
 
