@@ -367,91 +367,158 @@ struct Arr{
 //
 //    return text;
 //}
-
-struct Text task3(struct Text text){
-    int len_of_txt=text.n;
-
-        wchar_t sym[]=L"aeyuioEUIOAуеёэоаыяиюЮИЯЫАОЭЁЕУ";
-
-        for(int i=0;i<len_of_txt;i++) {
-            int full_len = text.sentences[i]->len;
-            wchar_t* str = malloc(sizeof(wchar_t) * (full_len +2));
-            wcscpy(str, text.sentences[i]->words);
-
-            wchar_t *tr;
-            wchar_t *token = wcstok(str, L" ,.", &tr);
-
-            wchar_t **list_of_words = malloc(full_len * sizeof(wchar_t *));
-            int kol = 0;
-            while (token != NULL){
-                list_of_words[kol++] = token;
-                token = wcstok(NULL, L" ,.", &tr);
-            }
-            int lenght=0;
-
-
-            wchar_t *change= malloc(sizeof(wchar_t) * (full_len +2));
-            wcscpy(change,text.sentences[i]->words);
-            //wprintf(L"I %ls I",change);
-
-            for(int q=0;q<kol-1;q++){
-                wchar_t *vowels_a,*vowels_b;
-
-
-
-                wchar_t *word_a=list_of_words[q];
-                wchar_t *word_b=list_of_words[q+1];
-
-                // wchar_t arr_vowels_a[wcslen(word_a)];
-
-                vowels_a = wcspbrk (word_a, sym);
-                //wprintf(L"%ls:",word_a);
-                int kol_a=0,kol_b=0;
-
-                while (vowels_a != NULL)
-                {
-                    kol_a++;
-                    vowels_a = wcspbrk (vowels_a+1,sym);
-                }
-                //wprintf(L"'%d'\n",kol_a);
-                /////////////\\\\\\\\\\\\\\
-
-                vowels_b = wcspbrk (word_b, sym);
-                // wprintf(L"%ls:",word_b);
-                while (vowels_b != NULL)
-                {
-                    kol_b++;
-                    vowels_b = wcspbrk (vowels_b+1,sym);
-                }
-
-                // wprintf(L"'%d'\n",kol_b);
-
-                if(kol_b>kol_a){
-                    list_of_words[q]=word_b;
-                    list_of_words[q+1]=word_a;
-
-
-                    //memmove(&text.sentences[i]->words[],&change[],kol_b)
-                }
-
-
-            }
-
-
-            for(int h=0;h<kol;h++){
-                wprintf(L"%ls ",list_of_words[h]);
-            }
-            //wprintf(L"full=%d",full_len);
-
-            puts("\n");
-        }
-
-
-        return text;
-    }
-
-
-
+//
+//struct Text task3(struct Text text){
+//    int len_of_txt=text.n;
+//
+//        wchar_t sym[]=L"aeyuioEUIOAуеёэоаыяиюЮИЯЫАОЭЁЕУ";
+//        wchar_t alphabet[]=L"qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMйцукенгшщзхъфывапролджэёячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЁЯЧСМИТЬБЮ";
+//
+//        for(int i=0;i<len_of_txt;i++) {
+//            int full_len = text.sentences[i]->len;
+//            wchar_t str[full_len +2];// = malloc(sizeof(wchar_t) * (full_len +2));
+//            wchar_t str_a[full_len+2];
+//            wcscpy(str, text.sentences[i]->words);
+//            wcscpy(str_a, text.sentences[i]->words);
+//
+//            wchar_t *tr;
+//            wchar_t *token = wcstok(str, L" ,.", &tr);
+//
+//            wchar_t *list_of_words[full_len];// = malloc(full_len * sizeof(wchar_t *));
+//            int kol = 0;
+//            while (token != NULL){
+//                list_of_words[kol++] = token;
+//                token = wcstok(NULL, L" ,.", &tr);
+//            }
+//
+//            wchar_t *token_a = wcstok(str_a, alphabet, &tr);
+//            wchar_t *list_of_sp[full_len];// = malloc(full_len * sizeof(wchar_t *));
+//            int kol_sp = 0;
+//            while (token_a != NULL){
+//                list_of_sp[kol_sp++] = token_a;
+//                token_a = wcstok(NULL, alphabet, &tr);
+//            }
+////            for(int a=0;a<kol_sp;a++){
+////                wprintf(L"'%ls'",list_of_sp[a]);
+////            }
+//
+//
+//
+//            wchar_t change[full_len +2];//= malloc(sizeof(wchar_t) * (full_len +2));
+//            //wcscpy(change,text.sentences[i]->words);
+//            //wprintf(L"I %ls I",change);
+//
+//            for(int q=0;q<kol-1;q++){
+//                for(int w=q;w<kol;w++){
+//                    wchar_t *vowels_a,*vowels_b;
+//
+//
+//
+//                    wchar_t *word_a=list_of_words[q];
+//                    wchar_t *word_b=list_of_words[w];
+//
+//                    // wchar_t arr_vowels_a[wcslen(word_a)];
+//
+//                    vowels_a = wcspbrk (word_a, sym);
+//                    //wprintf(L"%ls:",word_a);
+//                    int kol_a=0,kol_b=0;
+//
+//                    while (vowels_a != NULL)
+//                    {
+//                        kol_a++;
+//                        vowels_a = wcspbrk (vowels_a+1,sym);
+//                    }
+//                    //wprintf(L"'%d'\n",kol_a);
+//                    /////////////\\\\\\\\\\\\\\
+//
+//                    vowels_b = wcspbrk (word_b, sym);
+//                    // wprintf(L"%ls:",word_b);
+//                    while (vowels_b != NULL)
+//                    {
+//                        kol_b++;
+//                        vowels_b = wcspbrk (vowels_b+1,sym);
+//                    }
+//
+//                    // wprintf(L"'%d'\n",kol_b);
+//
+//                    if(kol_b>kol_a){
+//                        list_of_words[q]=word_b;
+//                        list_of_words[w]=word_a;
+//
+//
+//                        //memmove(&text.sentences[i]->words[],&change[],kol_b)
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//
+////            for(int h=0;h<kol;h++){
+////                wprintf(L"%ls ",list_of_words[h]);
+////            }
+//////            //wprintf(L"full=%d",full_len);
+//////
+////            puts("\n");
+//            //wprintf(L"%d %d\n",kol,kol_sp);
+//
+//            wchar_t change_now[full_len +2];
+//            if(kol==kol_sp && kol>1){
+//                wcscpy(change,list_of_words[0]);
+//                wcscat(change,list_of_sp[0]);
+//
+//                for(int k=1;k<kol;k++){
+//                    int len_sym= wcslen(list_of_words[k]), len_sep= wcslen(list_of_sp[k]);
+//                    wchar_t pair[len_sym+len_sep+1];
+//                    wcscpy(pair,list_of_words[k]);
+//                    wcscat(pair,list_of_sp[k]);
+//                    //wprintf(L"'%ls'\n",pair);
+//                    wcscat(change,pair);
+//                    //wprintf(L"%d %d\n",len_sym,len_sep);
+//                    //wcscat(change,wcscat(list_of_words[k],list_of_sp[k]));
+//                    //wprintf(L"STR=='%ls'\n",change);
+//                }
+//
+//                //wprintf(L"%ls\n",change);
+//                wcscpy(text.sentences[i]->words,change);
+//
+//            } else{
+//                wcscpy(change,list_of_words[0]);
+//                wcscat(change,list_of_sp[1]);
+//
+//                for(int k=1;k<kol;k++){
+//                    int len_sym= wcslen(list_of_words[k]), len_sep= wcslen(list_of_sp[k+1]);
+//
+//                    wchar_t pair[len_sym+len_sep+1];
+//
+//                    wcscpy(pair,list_of_words[k]);
+//                    wcscat(pair,list_of_sp[k+1]);
+//                    //wprintf(L"'%ls'\n",pair);
+//                    wcscat(change,pair);
+//                    //wprintf(L"%d %d\n",len_sym,len_sep);
+//                    //wcscat(change,wcscat(list_of_words[k],list_of_sp[k]));
+//                    //wprintf(L"STR=='%ls'\n",change);
+//                }
+//
+//                wcscpy(change_now,list_of_sp[0]);
+//                wcscat(change_now,change);
+//
+//                //wprintf(L"%ls\n",change_now);
+//                wcscpy(text.sentences[i]->words,change_now);
+//
+//            }
+//
+//
+//
+//        }
+//
+//
+//        return text;
+//    }
+//
+//
+//
 
     struct Mask{
     wchar_t *masks;
@@ -464,7 +531,6 @@ int main() {
     setlocale(LC_ALL,"");
 
     struct Text new_text = readText();
-    /*struct Text */
     new_text = del_rep(new_text);
 
     for(int i=0;i<new_text.n;i++){
@@ -478,7 +544,7 @@ int main() {
     int k=1;
 while(k){
     int operation;
-    printf("Для получения маски по каждому предложению введите 1.\nЧтобы удалить все предложения, в которых нет заглавных букв в начале слова введите 2."
+    printf("\n\nДля получения маски по каждому предложению введите 1.\nЧтобы удалить все предложения, в которых нет заглавных букв в начале слова введите 2."
            "\nЧтобы отсортировать слова в предложении по количеству гласных букв в слове введите 3."
            "\nЧтобы для каждого предложения получить количество одинаковых слов в строке введите 4."
            "\nЧтобы завершить программу введите 5.\n--->");
@@ -542,16 +608,6 @@ while(k){
     }
 }
 
-    for(int i=0;i<new_text.n;i++){
-        wprintf(L"\nstring---->  %d : %ls %d %d\n",i,new_text.sentences[i]->words,new_text.sentences[i]->len,new_text.n);
-    }
-    //wprintf(L"%d, %d",text.n,new_text.n);
-
-
-//   for(int fr=0;fr<new_text.n;fr++){
-//        free(new_text.sentences[fr]->words);
-//    }
-//    free(&new_text);
 
 
 
@@ -570,33 +626,6 @@ while(k){
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-
-
-//    for(int i=0;i<new_text.n;i++){
-//        printf("'%d' ",arr[i]);
-//    }
-
-
-
-/*    int *txt= malloc(5*sizeof(int));
-    for(int i=0;i<5;i++){
-        struct Sentence *sent=readSentence();
-        txt[i]=sent->len;
-    }
-    for(int i=0;i<5;i++){
-        printf("%d ",txt[i]);
-    }
-
-    wprintf(L"%ls",sent->words);
-
-    free(sent->words);
-    free(sent);
-    printf("Hello, He!\n");*/
-
-//    for(int i=0;i<text.n;i++){
-//        free(text.sentences[i]->words);
-//    }
-//    free(&text);
 
     return 0;
 }
