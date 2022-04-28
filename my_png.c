@@ -1,9 +1,8 @@
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-
+#include <math.h>
 #define PNG_DEBUG 3
 #include </usr/local/include/png.h>
 
@@ -17,8 +16,17 @@ struct My_png{
     int number_of_passes;
     png_bytep *row_pointers;
 };
+struct Point{
+        int x;
+        int y;
+}typedef Point;
 
-
+struct my_Color{
+	int r;
+	int g;
+	int b;
+	//int alpha;
+}typedef my_Color;
 void read_png_file(char *file_name, struct My_png *image) {
     int x,y;
     char header[8];    // 8 is the maximum size that can be checked
@@ -30,8 +38,9 @@ void read_png_file(char *file_name, struct My_png *image) {
     }
 
     fread(header, 1, 8, fp);
-    if (png_sig_cmp(header, 0, 8)){
-        // Some error handling: file is not recognized as a PNG
+    if (png_sig_cmp((png_const_bytep)header, 0, 8)){
+       	puts("type_error");
+	 // Some error handling: file is not recognized as a PNG
     }
 
     /* initialize stuff */
@@ -140,23 +149,23 @@ void write_png_file(char *file_name, struct My_png *image) {
     fclose(fp);
 }
 
-void draw_pixel(int x,int y,struct My_png *image,int r,int g,int b/*int a*/){
+void draw_pixel(int x,int y,struct My_png *image,my_Color color){
 	png_byte *row=image->row_pointers[y];
 	png_byte *ptr =&(row[x*4]);
-	ptr[0]=r;
-	ptr[1]=g;
-	ptr[2]=b;
-	//ptr[3]=a;
+	ptr[0]=color.r;
+	ptr[1]=color.g;
+	ptr[2]=color.b;
+	//ptr[3]=0,5;
 }
-void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
+void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1,struct Point p2) {
     int x,y;
     if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
         // Some error handling: input file is PNG_COLOR_TYPE_RGB but must be PNG_COLOR_TYPE_RGBA
     }
-
+	if(thinkness<=0)return;
     //if (png_get_color_type(image->png_ptr, image->info_ptr) != PNG_COLOR_TYPE_
-	int start_x=150,start_y=100;
-	int end_x=200,end_y=200;
+	int start_x=p1.x,start_y=p1.y;
+	int end_x=p2.x,end_y=p2.y;
 	//int thinkness=4;
 	
 	float delta_x=abs(start_x-end_x);
@@ -173,11 +182,19 @@ void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
 	int dirx=end_x-start_x;
 	if(dirx>0)dirx=1;
 	if(dirx<0)dirx=-1;
-	printf("x=%f y=%f\n",delta_x,delta_y);
+//	printf("%d\n",diry);
+	//printf("x=%f y=%f\n",delta_x,delta_y);
 	if(delta_x>=delta_y){
 		for(int now_x=start_x;now_x<end_x;now_x++){
 			
-			for(int k=0;k<thinkness;k++)draw_pixel(now_x+k,new_y,image,r,g,b);
+			if(diry!=0){
+				for(int k=0;k<thinkness;k++)
+					draw_pixel(now_x+k,new_y,image,color);
+			}
+			if(diry==0){
+				for(int k=0;k<thinkness;k++)draw_pixel(now_x,new_y+k,image,color);
+			//	puts("zero");
+			}
 			error=error+delta_err;
 		
 			if(error>=(delta_x+1)){
@@ -187,8 +204,14 @@ void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
 		}
 		 for(int now_x=start_x;now_x>end_x;now_x--){
                                 
-                        for(int k=0;k<thinkness;k++)draw_pixel(now_x+k,new_y,image,0,0,255);
-                        error=error+delta_err;
+                        if(diry!=0){
+				for(int k=0;k<thinkness;k++)draw_pixel(now_x+k,new_y,image,color);
+                        }
+			if(diry==0){
+				for(int k=0;k<thinkness;k++)draw_pixel(now_x,new_y+k,image,color);
+			//	puts("zero2");
+			}
+			error=error+delta_err;
                 
                         if(error>=(delta_x+1)){
                                 new_y=new_y+diry;
@@ -200,7 +223,13 @@ void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
 	if(delta_x<delta_y){
 	for(int now_y=start_y;now_y<end_y;now_y++){
 		
-		for(int k=0;k<thinkness;k++)draw_pixel(new_x+k,now_y,image,255,255,0);
+		if(diry!=0){
+			for(int k=0;k<thinkness;k++)draw_pixel(new_x+k,now_y,image,color);
+		}
+		if(diry==0){
+			for(int k=0;k<thinkness;k++)draw_pixel(new_x,now_y+k,image,color);
+		//	puts("null");
+		}
 		error=error+delta_err_x;
 		if(error>=(delta_y+1)){
 			new_x=new_x+dirx;
@@ -209,8 +238,14 @@ void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
 	}
 	 for(int now_y=start_y;now_y>end_y;now_y--){
 
-                for(int k=0;k<thinkness;k++)draw_pixel(new_x+k,now_y,image,255,255,0);
-                error=error+delta_err_x;
+                if(diry!=0){
+			for(int k=0;k<thinkness;k++)draw_pixel(new_x+k,now_y,image,color);
+		}
+		if(diry==0){
+			for(int k=0;k<thinkness;k++)draw_pixel(new_x,now_y+k,image,color);
+                //	puts("null2");
+		}
+		error=error+delta_err_x;
                 if(error>=(delta_y+1)){
                         new_x=new_x+dirx;
                         error=error-(delta_y+1);
@@ -221,12 +256,10 @@ void process_file(struct My_png *image,int r,int g,int b,int thinkness) {
 
 
 }
-struct Point{
-	int x;
-	int y;
-}typedef Point;
+
 void draw_triangle(struct My_png *image){
-	Point point1={200,100},point2={250,200},point3={250,150};
+	my_Color color_1={234,22,12},color_2={255,255,25};
+	Point point1={200,100},point2={100,200},point3={300,300};
 	Point min_point,mid_point,max_point;
 	if(point1.y<=point2.y){
 		min_point=point1;
@@ -261,8 +294,46 @@ void draw_triangle(struct My_png *image){
                 }
 	
 	}}}
+	Point right,left;
+	if(mid_point.x>=max_point.x){
+		right.x=mid_point.x;
+		right.y=mid_point.y;
+		left.x=max_point.x;
+		left.y=max_point.y;
+	}else{
+		right.x=max_point.x;
+		right.y=max_point.y;
+		left.x=mid_point.x;
+		left.y=mid_point.y;
+	}
 	
-	printf("min=%d mid=%d max=%d\n",min_point.y,mid_point.y,max_point.y);
+	//printf("min=%d left=%d right=%d ",min_point.y,left.y,right.y);
+	int  a1,b1,a2,b2,a3,b3;
+	//left line constants a1 b1
+	//right line constants a2 b2
+	//down line constants a3 b3
+	a1=(abs(left.y-min_point.y)/abs(left.x-min_point.x));
+	b1=abs(min_point.y-a1*min_point.x);
+	a2=(abs(right.y-min_point.y)/abs(right.x-min_point.x));
+        b2=abs(min_point.y-a2*min_point.x);
+	a3=(abs(left.y-right.y)/abs(left.x-right.x));
+        b3=abs(right.y-a3*right.x);
+	//printf("min_x=%d min_y=%d");
+	draw_line(image,color_1,4,min_point,left);
+	draw_line(image,color_1,4,min_point,right);
+	draw_line(image,color_1,4,right,left);
+	printf("a1=%d b1=%d a2=%d b2=%d a3=%d b3=%d\n",a1,b1,a2,b2,a3,b3);
+	for(int row=0;row<image->height;row++){
+		for(int x=0;x<image->width;x++){
+			if(row<=mid_point.y && row>min_point.y &&
+				x>=abs(row-b1)/a1 ){
+				draw_pixel(x,row,image,color_2);
+			}
+					
+		}
+	}
+	
+	//printf("min=%d mid=%d max=%d\n",min_point.y,mid_point.y,max_point.y);
 }
 int main(int argc, char **argv) {
     if (argc != 3){
@@ -274,6 +345,10 @@ int main(int argc, char **argv) {
     read_png_file(argv[1], &image);
     //process_file(&image);
     draw_triangle(&image);
+	my_Color c={255,0,255};
+	Point p1={100,200},p2={300,200};
+		
+	//draw_line(&image,c,4,p1,p2);
     write_png_file(argv[2], &image);
 
     return 0;
