@@ -5,7 +5,7 @@
 #include <math.h>
 #define PNG_DEBUG 3
 #include </usr/local/include/png.h>
-
+#include <string.h>
 struct My_png{
     int width, height;
     png_byte color_type;
@@ -17,16 +17,17 @@ struct My_png{
     png_bytep *row_pointers;
 };
 struct Point{
-        int x;
-        int y;
+        float x;
+        float y;
 }typedef Point;
 
 struct my_Color{
 	int r;
 	int g;
 	int b;
-	//int alpha;
+	int alpha;
 }typedef my_Color;
+
 void read_png_file(char *file_name, struct My_png *image) {
     int x,y;
     char header[8];    // 8 is the maximum size that can be checked
@@ -155,7 +156,7 @@ void draw_pixel(int x,int y,struct My_png *image,my_Color color){
 	ptr[0]=color.r;
 	ptr[1]=color.g;
 	ptr[2]=color.b;
-	//ptr[3]=0,5;
+	ptr[3]=color.alpha;
 }
 void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1,struct Point p2) {
     int x,y;
@@ -258,8 +259,9 @@ void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1
 }
 
 void draw_triangle(struct My_png *image){
-	my_Color color_1={234,22,12},color_2={255,255,25};
-	Point point1={200,100},point2={100,200},point3={300,300};
+	my_Color color_1={234,22,12,255},color_2={255,255,25,255};
+	
+	Point point1={19,98},point2={105,212},point3={303,290};
 	Point min_point,mid_point,max_point;
 	if(point1.y<=point2.y){
 		min_point=point1;
@@ -308,32 +310,81 @@ void draw_triangle(struct My_png *image){
 	}
 	
 	//printf("min=%d left=%d right=%d ",min_point.y,left.y,right.y);
-	int  a1,b1,a2,b2,a3,b3;
+	float  a1,b1,a2,b2,a3,b3;
 	//left line constants a1 b1
 	//right line constants a2 b2
 	//down line constants a3 b3
-	a1=(abs(left.y-min_point.y)/abs(left.x-min_point.x));
-	b1=abs(min_point.y-a1*min_point.x);
-	a2=(abs(right.y-min_point.y)/abs(right.x-min_point.x));
-        b2=abs(min_point.y-a2*min_point.x);
-	a3=(abs(left.y-right.y)/abs(left.x-right.x));
-        b3=abs(right.y-a3*right.x);
+	a1=(left.y-min_point.y)/(left.x-min_point.x);
+	b1=min_point.y-a1*min_point.x;
+	a2=(right.y-min_point.y)/(right.x-min_point.x);
+        b2=(min_point.y-a2*min_point.x);
+	a3=(left.y-right.y)/(left.x-right.x);
+        b3=(right.y-a3*right.x);
 	//printf("min_x=%d min_y=%d");
-	draw_line(image,color_1,4,min_point,left);
-	draw_line(image,color_1,4,min_point,right);
-	draw_line(image,color_1,4,right,left);
-	printf("a1=%d b1=%d a2=%d b2=%d a3=%d b3=%d\n",a1,b1,a2,b2,a3,b3);
+	printf("a1=%f b1=%f a2=%f b2=%f a3=%f b3=%f\n",a1,b1,a2,b2,a3,b3);
 	for(int row=0;row<image->height;row++){
 		for(int x=0;x<image->width;x++){
-			if(row<=mid_point.y && row>min_point.y &&
-				x>=abs(row-b1)/a1 ){
+			if(row<=mid_point.y && row>=min_point.y &&
+				x>=(row-b1)/a1 && x<=(row-b2)/a2){
+				draw_pixel(x,row,image,color_2);
+			}
+			if(row<=max_point.y && row>=mid_point.y &&
+				x>=(row-b3)/a3 && x<=(row-b2)/a2){
 				draw_pixel(x,row,image,color_2);
 			}
 					
 		}
 	}
-	
+	draw_line(image,color_1,1,min_point,left);
+        draw_line(image,color_1,1,min_point,right);
+        draw_line(image,color_1,1,right,left);
 	//printf("min=%d mid=%d max=%d\n",min_point.y,mid_point.y,max_point.y);
+}
+
+void draw_collage(struct My_png *image,struct My_png *img){
+	int repeat_X=4;
+	int repeat_Y=5;
+	int const_x=image->width/repeat_X;
+	int const_y=image->height/repeat_Y;	
+	my_Color now_color[image->height][image->width];
+	int kol_x=0,kol_y=0;
+	for(int row=0;row<img->height;row++){
+		kol_x=0;
+		if(row%repeat_Y==0)kol_y++;
+              for(int x=0;x<img->width;x++){
+			if(x%repeat_X==0){
+			 png_byte *n_row=img->row_pointers[row];
+                         png_byte *ptr =&(n_row[x*4]);
+                         now_color[kol_y][kol_x].r=ptr[0];
+                         now_color[kol_y][kol_x].g=ptr[1];
+                         now_color[kol_y][kol_x].b=ptr[2];
+                         now_color[kol_y][kol_x].alpha=ptr[3];
+			 kol_x++;
+			}
+		
+		}
+	}
+//	printf("%d %d %d %d \n",img->height,img->width,kol_y,kol_x);
+	for(int row=0;row<kol_y;row++){
+		for(int x=0;x<kol_x;x++){
+			
+			for(int j=0;j<repeat_Y;j++){
+				for(int i=0;i<repeat_X;i++){
+					png_byte *n_row=image->row_pointers[row+j*const_y];
+					png_byte *ptr =(&(n_row[(x+i*const_x)*4]));
+					ptr[0]=now_color[row][x].r;
+        				ptr[1]=now_color[row][x].g;
+        				ptr[2]=now_color[row][x].b;
+					ptr[3]=now_color[row][x].alpha;
+				}		
+			}
+	
+		}
+	//puts("");
+	}
+}
+void find_rectangle(my_Color color,struct My_png *image){
+	
 }
 int main(int argc, char **argv) {
     if (argc != 3){
@@ -342,11 +393,17 @@ int main(int argc, char **argv) {
     }
 
     struct My_png image;
+	struct My_png img;
     read_png_file(argv[1], &image);
+	char need[8];
+	strcpy(need,"eng.png");	
+	
+    read_png_file(need,&img);	
     //process_file(&image);
-    draw_triangle(&image);
-	my_Color c={255,0,255};
-	Point p1={100,200},p2={300,200};
+    //draw_triangle(&image);
+    draw_collage(&image,&img);
+//	my_Color c={255,0,255};
+//	Point p1={100,200},p2={300,200};
 		
 	//draw_line(&image,c,4,p1,p2);
     write_png_file(argv[2], &image);
