@@ -22,7 +22,7 @@ void printHelp(){
     puts("");
     printf("\nдля создания коллажа введите --collage и необходимые аргументы: \nизображение для коллажа -img <name.png> \nколичества по оси X --x_axis и по оси Y --y_axis");
     puts("");
-    printf("\nдля находения самого большого треугольника введите  --rectangle и необходимые аргументы: \nего цвет --color_find <color> \nцвет для перекраски --color_full <color>\n");
+    printf("\nдля находения самого большого прямоугольника введите  --rectangle и необходимые аргументы: \nего цвет --color_find <color> \nцвет для перекраски --color_full <color>\n");
     puts("");
     //    printf("getopt example\n");
 //    printf("-f <value> - final value\n");
@@ -35,18 +35,19 @@ struct Point{
     int y;
 }typedef Point;
 struct Configs{
-    int final;
-    int reverse; // 0 - false
-    int verbose; // 0 - false
+
     char color_line[100];
-    int color_find;
-    int color_full;
+    char color_find[100];
+    char color_full[100];
     //int full_color;
     Point point1;
     Point point2;
     Point point3;
     int thinkness;
     int func;
+    int axis_x;
+    int axis_y;
+    char img[100];
 };
 
 int main(int argc, char* argv[]){
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]){
 
     struct Configs config = {0, 0, 0};
     //char *opts = "f:lutpcrvha";
-    char *opts = "ltrcqabpsufxyh";
+    char *opts = "ltrcqabpsufxyhi";
     struct option longOpts[]={
             {"line", no_argument, NULL, 'l'},
             {"triangle",no_argument,NULL,'t'},
@@ -74,6 +75,7 @@ int main(int argc, char* argv[]){
             {"color_find",1,NULL,'f'},
             {"x_axis",1,NULL,'x'},
             {"y_axis",1,NULL,'y'},
+            {"img",1,NULL,'i'},
             {"help",no_argument,NULL,'h'},
 
             { NULL, 0, NULL, 0}
@@ -87,8 +89,16 @@ int main(int argc, char* argv[]){
     while(opt!=-1){
         switch(opt){
             case 'l':
-//				printf("get f with value: %d\n", atoi(optarg));
                 config.func = 4;
+                break;
+            case 't':
+                config.func=1;
+                break;
+            case 'r':
+                config.func=2;
+                break;
+            case 'c':
+                config.func=3;
                 break;
             case 'a':
                 strcpy(point,optarg);
@@ -122,6 +132,21 @@ int main(int argc, char* argv[]){
             case 'q':
                 strcpy(config.color_line,optarg);
                 break;
+            case 'u':
+                strcpy(config.color_full,optarg);
+                break;
+            case 'f':
+                strcpy(config.color_find,optarg);
+                break;
+            case 'x':
+                config.axis_x= atoi(optarg);
+                break;
+            case 'y':
+                config.axis_y= atoi(optarg);
+                break;
+            case 'i':
+                strcpy(config.img,optarg);
+                break;
             case 'h':
 
                 printHelp();
@@ -136,19 +161,40 @@ int main(int argc, char* argv[]){
    // printf("%s\n",argv[1]);
     if(strcmp(argv[1],"--line")==0 || strcmp(argv[1],"--rectangle")==0 || strcmp(argv[1],"--collage")==0 ||strcmp(argv[1],"--triangle")==0||
             strcmp(argv[1],"-l")==0 || strcmp(argv[1],"-r")==0 || strcmp(argv[1],"-c")==0 ||strcmp(argv[1],"-t")==0){
+            argc -= optind;
+            argv += optind;
+            for(int i=0; i<argc; i++)
+                printf(">>%s\n", argv[i]);
+
+
             int kol=optind;
-            //line 10
-            //
-           if(kol==10) printf("p=%d,%d p=%d,%d t=%d c=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.thinkness,config.color_line);
+
+           if(kol==10&& config.func==4) {
+               //line
+               printf("p=%d,%d p=%d,%d t=%d c=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.thinkness,config.color_line);
+           } else
+           if(kol==14 && config.func==1) {
+               //trianngle
+               printf("p=%d,%d p=%d,%d p=%d,%d t=%d c=%s c_f=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.point3.x,config.point3.y,config.thinkness,config.color_line,config.color_full);
+
+           }else
+           if(kol==8 &&config.func==3){
+               printf("img=%s x=%d y=%d\n",config.img,config.axis_x,config.axis_y);
+           }else
+           if(kol==6 && config.func==2){
+               printf("c=%s c_find=%s\n",config.color_full,config.color_find);
+           }
+
+           else{
+               printf("НЕ КОРРЕКТНЫЙ ВВОД ДАННЫХ\n\n");
+               printHelp();
+           }
 
     }else{
         printHelp();
         return 0;
     }
 
-    argc -= optind;
-    argv += optind;
-    for(int i=0; i<argc; i++)
-        printf(">>%s\n", argv[i]);
+
     return 0;
 }
