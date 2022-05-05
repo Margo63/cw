@@ -1,3 +1,4 @@
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -488,6 +489,8 @@ struct Shape{
 struct Rectangle{
 	Point start;
 	Point end;
+	int width;
+	int height;
 }typedef Rectangle; 
 int cmp(const void* a,const void* b){
 	//puts("OK");
@@ -609,7 +612,8 @@ int color_check(int x,int y,my_Color color,struct My_png *image ){
 	else return 0;
 }
 void rec_ver2(my_Color find_color,my_Color full_color,struct My_png *image){
- 	
+ 	struct Rectangle list_rec[100];
+	int kol_rec=0;
 	for (int y = 1; y < image->height-1; y++) {
            
                 //png_byte *row = image->row_pointers[y];
@@ -627,15 +631,100 @@ void rec_ver2(my_Color find_color,my_Color full_color,struct My_png *image){
 						now_x++;
 						width++;		
 					}
-					//Point p1={x,y};
-					//Point p2={x+width-1,y+height-1};
-					//draw_line(image,full_color,1,p1,p2);
-					//printf("%d,%d:%d %d\n",x,y,height,width);
 					
+					int check_full=1;
+					for(int i=y;i<y+height-1;i++){
+						for(int j=x;j<x+width-1;j++){
+							if(color_check(j,i,find_color,image)){
+								check_full=1;
+							}else{
+								check_full=0;
+								break;
+							}
+						}
+						if(check_full==0)break;
+					}
+					int check_shape=1;
+					int check_up=1,check_down=1,check_right=1,check_left=1;
+					if(check_full){
+						//Point p1={x,y};
+                                        	//Point p2={x+width-1,y+height-1};
+                                        	//list_rec[kol_rec].start=p1;
+                                        	//list_rec[kol_rec].end=p2;
+                                        	//kol_rec++;
+						for(int i=y;i<y+height-1;i++){
+                                                    	if(color_check(x-1,i,find_color,image)==0)check_left=1;
+							else{
+								check_left=0;
+								break;
+							}    
+                                        	}
+						for(int i=y;i<y+height-1;i++){
+							if(color_check(x+width,i,find_color,image)==0)check_right=1;
+							else{
+								check_right=0;
+								break;
+							}
+						}
+						for(int j=x;j<x+width-1;j++){
+							if(color_check(j,y-1,find_color,image)==0)check_up=1;
+							else{
+								check_up=0;
+								break;
+							}	
+						}
+						for(int j=x;j<x+width-1;j++){
+							if(color_check(j,y+height,find_color,image)==0)check_down=1;
+							else{
+								check_down=0;
+								break;
+							}
+						}	
+						if(check_left && check_right && check_up&& check_down){
+							Point p1={x,y};
+                                                	Point p2={x+width-1,y+height-1};
+                                                	list_rec[kol_rec].start=p1;
+                                                	list_rec[kol_rec].end=p2;
+							list_rec[kol_rec].width=width;
+							list_rec[kol_rec].height=height;
+                                                	kol_rec++;
+						}
+					}
+					//if(width==1 || height==1){
+							//int check=0;
+							//for()
+							//Point p1={x,y};
+                                                        //Point p2={x+width-1,y+height-1};
+                                                        //list_rec[kol_rec].start=p1;
+                                                        //list_rec[kol_rec].end=p2;
+                                                        //list_rec[kol_rec].width=width;
+                                                        //list_rec[kol_rec].height=height;
+                                                        //kol_rec++;
+
+					//}
 				}
 			}
 		}
 	}
+	Rectangle max=list_rec[0];
+	for(int q=1;q<kol_rec;q++){
+		if(max.width*max.height<list_rec[q].width*list_rec[q].height){
+			max.height=list_rec[q].height;
+			max.width=list_rec[q].width;
+			max.start.x=list_rec[q].start.x;
+			max.end.x=list_rec[q].end.x;
+			max.start.y=list_rec[q].start.y;
+			max.end.y=list_rec[q].end.y;
+		}
+		//draw_line(image,full_color,1,list_rec[q].start,list_rec[q].end);
+		//printf("(%f, %f): (%f, %f)\n",list_rec[q].start.x,list_rec[q].start.y,list_rec[q].end.x,list_rec[q].end.y);
+	}
+	for(int i=max.start.y;i<=max.end.y;i++){
+		for(int j=max.start.x;j<=max.end.x;j++){
+			draw_pixel(j,i,image,full_color);
+		}
+	}
+
 }
 int main(int argc, char **argv) {
     if (argc != 3){
