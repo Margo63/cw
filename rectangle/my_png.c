@@ -1,4 +1,3 @@
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -478,64 +477,165 @@ void draw_collage(struct My_png *image,struct My_png *img){
 	}
 }
 struct Shape{
-	int start_x;
-	int end_x;
-	int start_y;
-	int end_y;
-	int width;
-	int height;
+	int start_x[100];
+	int end_x[100];
+	int start_y[100];
+	int end_y[100];
+	int width[100];
+	int height[100];
+	int repeat;
 }typedef Shape;
+struct Rectangle{
+	Point start;
+	Point end;
+}typedef Rectangle; 
+int cmp(const void* a,const void* b){
+	//puts("OK");
+	Shape * aa=(Shape *)a;
+	Shape *bb =(Shape*)b;
+	if((aa->start_x[0]-bb->start_x[0])!=0)return aa->start_x[0]-bb->start_x[0];
+	else{
+		return aa->end_y[0]-bb->end_y[0];
+	}
+}
 void find_rectangle(my_Color color,my_Color full_color,struct My_png *image){
 	int kol=0;
 	Shape arr_s[image->height];
 	int kol_arr=0;
+	int repeat=0;
 	//printf("%d %d %d\n",color.r,color.g,color.b);
-	arr_s[0].width=-10;
+	//arr_s[0].width[0]=-10;
+	int check_exist=0;
 	for (int y = 0; y < image->height; y++) {
-		kol=0;
+		kol=0;check_exist=0;repeat=0;
         	png_byte *row = image->row_pointers[y];
         	for (int x = 0; x < image->width; x++) {
             		png_byte *ptr = &(row[x * 4]);
             		//printf("(%d %d %d) ",ptr[0],ptr[1],ptr[2]);
 			if(ptr[0]==color.r && ptr[1]==color.g && ptr[2]==color.b){
+				check_exist=1;
 				if(kol==0){
-					arr_s[kol_arr].start_x=x;
-					arr_s[kol_arr].end_y=y;
+					arr_s[kol_arr].start_x[repeat]=x;
+					arr_s[kol_arr].end_y[repeat]=y;
+					arr_s[kol_arr].height[repeat]=0;
+					repeat++;
 				}
 				kol++;
 			}else{
-				arr_s[kol_arr].width=kol;
-				/*if(arr_s[kol_arr].width==kol){
-					arr_s[kol_arr].width=kol;
-					arr_s[kol_arr].height++;	
-				}else{
-					if(kol_arr==0){
-						arr_s[kol_arr].width=kol;
-						arr_s[kol_arr].height++;
-					}else{	
-						kol_arr++;		
-					}
-				}*/
+				if(kol>0){
+					int tmp=repeat-1;
+					arr_s[kol_arr].width[tmp]=kol;
+					kol=0;
+				}
 				
 				
 			}
 
         	}
 		//printf("%d: %d %d --%d\n",kol_arr,arr_s[kol_arr].start_x,arr_s[kol_arr].end_y,arr_s[kol_arr].width);
-                if(kol!=0)kol_arr++;
+		arr_s[kol_arr].repeat=repeat;
+                if(check_exist==1)kol_arr++;
 //		puts("");
 //		printf("%d\n",kol);	
     	}
 	Shape shapes[image->height];
-	int kol_shape;
-	for(int i=1;i<kol_arr;i++){
-		printf("%d: %d %d --%d\n",i,arr_s[i].start_x,arr_s[i].end_y,arr_s[i].width);
-		if(arr_s[i].start_x==arr_s[i-1].start_x && arr_s[i].width == arr_s[i-1].width
-			&& (arr_s[i].end_y-arr_s[i-1].end_y)==1){
-			shapes
+	int kol_shape=0;
+	int check=0;
+	int check_s=0;
+	for(int i=1;i<=kol_arr;i++){
+		check=0;
+		//printf("%d:%d %d %d --%d\n",i,arr_s[i].repeat,arr_s[i].start_x[0],arr_s[i].end_y[0],arr_s[i].width[0]);
+		for(int j=0;j<arr_s[i].repeat;j++){
+		if(arr_s[i].repeat==arr_s[i-1].repeat && arr_s[i].start_x[j]==arr_s[i-1].start_x[j]
+			 && arr_s[i].width[j] == arr_s[i-1].width[j] && (arr_s[i].end_y[j]-arr_s[i-1].end_y[j])==1){
+				check=1;
+		//	printf(">>>>>%d = %d<<<<\n",arr_s[i].width[j], arr_s[i-1].width[j]);
+			//for(int j=0;j<arr_s[i].repeat;j++)
+			//printf("%d:%d %d %d --%d\t\t\t",i,arr_s[i].repeat,arr_s[i].start_x[j],arr_s[i].end_y[j],arr_s[i].width[j]);
+		}else{
+			check=0;
+			break;	
+			}
+		}
+		if(check==1){
+		for(int j=0;j<arr_s[i].repeat;j++){
+        //           printf("%d:%d %d %d --%d\t",i,arr_s[i-1].repeat,arr_s[i-1].start_x[j],arr_s[i-1].end_y[j],arr_s[i-1].width[j]);
+	//	   printf("''%d:%d %d %d --%d''\t",i,arr_s[i].repeat,arr_s[i].start_x[j],arr_s[i].end_y[j],arr_s[i].width[j]);
+			shapes[kol_shape].start_x[0]=arr_s[i-1].start_x[j];
+			shapes[kol_shape].end_y[0]=arr_s[i-1].end_y[j];
+			shapes[kol_shape].width[0]=arr_s[i-1].width[j];
+			//shapes[kol_shape].height[0]++;
+			kol_shape++;
+		}
+	//	kol_shape++;
+	//	puts("ok");
 		}
 	}
-	//printf("%d",kol_arr);	
+	Rectangle list_of_rec[kol_shape];
+	int kol_rec=0;
+	qsort(shapes,kol_shape,sizeof(Shape),cmp);
+	int height_rec=0;
+	for(int q=1;q<kol_shape;q++){
+		if(shapes[q-1].start_x[0]!=shapes[q].start_x[0] || abs(shapes[q-1].end_y[0]-shapes[q].end_y[0])!=1){
+			list_of_rec[kol_rec].start.x=shapes[q-1].start_x[0];
+                        list_of_rec[kol_rec].end.y=shapes[q-1].end_y[0]+1;
+			list_of_rec[kol_rec].end.x=shapes[q-1].start_x[0]+shapes[q-1].width[0];
+			list_of_rec[kol_rec].start.y=shapes[q-1].end_y[0]-height_rec;
+			//printf("HEIGHT >>>%d\n",height_rec);
+			//printf("%d:start (%.0f, %.0f) end (%.0f,%.0f)\n",kol_rec,list_of_rec[kol_rec].start.x,list_of_rec[kol_rec].start.y,list_of_rec[kol_rec].end.x,list_of_rec[kol_rec].end.y);
+			kol_rec++;
+			height_rec=0;
+		}else{
+		//	list_of_rec[kol_rec].start.x=shapes[q-1].start_x[0];
+		//	list_of_rec[kol_rec].end.y=shapes[q-1].end_y[0];
+			height_rec++;
+		}
+		//printf("x=%d y=%d width=%d\n",shapes[q].start_x[0],shapes[q].end_y[0],shapes[q].width[0]);
+	}
+	
+	for(int a=0;a<kol_rec;a++){
+	
+	printf("%d:start (%.0f, %.0f) end (%.0f,%.0f)\n",a,list_of_rec[a].start.x,list_of_rec[a].start.y,list_of_rec[a].end.x,list_of_rec[a].end.y);
+	Point p1={list_of_rec[a].start.x,list_of_rec[a].start.y};
+	Point p2={list_of_rec[a].end.x,list_of_rec[a].end.y};
+	draw_line(image,full_color,1,p1,p2);
+	}
+	//printf("%d",kol_shape);	
+}
+int color_check(int x,int y,my_Color color,struct My_png *image ){
+	png_byte *row =image->row_pointers[y];
+	png_byte *ptr =&(row[x*4]);
+	if(ptr[0]==color.r && ptr[1]==color.g && ptr[2]==color.b)return 1;
+	else return 0;
+}
+void rec_ver2(my_Color find_color,my_Color full_color,struct My_png *image){
+ 	
+	for (int y = 1; y < image->height-1; y++) {
+           
+                //png_byte *row = image->row_pointers[y];
+                for (int x = 1; x < image->width-1; x++) {
+                       // png_byte *ptr = &(row[x * 4]);
+                        if(color_check(x,y,find_color,image)){
+				if(color_check(x-1,y,find_color,image)==0 && color_check(x,y-1,find_color,image)==0){
+					int now_x=x, now_y=y;
+					int width=0,height=0;
+					while(color_check(x,now_y,find_color,image)){
+						now_y++;
+						height++;
+					}
+					while(color_check(now_x,y,find_color,image)){
+						now_x++;
+						width++;		
+					}
+					//Point p1={x,y};
+					//Point p2={x+width-1,y+height-1};
+					//draw_line(image,full_color,1,p1,p2);
+					//printf("%d,%d:%d %d\n",x,y,height,width);
+					
+				}
+			}
+		}
+	}
 }
 int main(int argc, char **argv) {
     if (argc != 3){
@@ -553,12 +653,12 @@ int main(int argc, char **argv) {
     //process_file(&image);
     //draw_triangle(&image);
     //draw_collage(&image,&img);
-	my_Color c={251,2,7};
-	my_Color c2={0,255,0};
+	my_Color c={251,2,7,255};
+	my_Color c2={0,255,0,255};
 //	Point p1={100,200},p2={300,200};
 		
 	//draw_line(&image,c,4,p1,p2);
-	find_rectangle(c,c2,&image);
+	rec_ver2(c,c2,&image);
     write_png_file(argv[2], &image);
 
     return 0;
