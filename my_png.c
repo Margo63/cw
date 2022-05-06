@@ -253,7 +253,7 @@ void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1
 }
 
 void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point point1,Point point2,Point point3,int thinkness){
-	//my_Color color_1={234,22,12,255},color_2={255,255,25,255};
+	
 	if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
      		puts("input file's color type RGB but must be RGBA");
         	return;
@@ -311,14 +311,22 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
 	//left line constants a1 b1
 	//right line constants a2 b2
 	//down line constants a3 b3
-
+	//if(left.y<=right.y){
 	a1=(left.y-min_point.y)/(left.x-min_point.x);
 	b1=min_point.y-a1*min_point.x;
 	a2=(right.y-min_point.y)/(right.x-min_point.x);
         b2=(min_point.y-a2*min_point.x);
 	a3=(left.y-right.y)/(left.x-right.x);
         b3=(right.y-a3*right.x);
-	
+	//}
+	//if(left.y>right.y){
+		a1=(left.y-min_point.y)/(left.x-min_point.x);
+        	b1=min_point.y-a1*min_point.x;
+        	a2=(right.y-min_point.y)/(right.x-min_point.x);
+        	b2=(min_point.y-a2*min_point.x);
+        	a3=(right.y-left.y)/(right.x-left.x);
+        	b3=(right.y-a3*right.x);
+	//}
 	printf("a1=%.0f b1=%0.f a2=%f b2=%f a3=%.0f b3=%0.f",a1,b1,a2,b2,a3,b3);
 	//printf("(%.0f, %.0f) (%.0f, %.0f) (%.0f, %.0f)\n",min_point.x,min_point.y,left.x,left.y,right.x,right.y);	
 	for(int row=0;row<image->height;row++){
@@ -327,13 +335,19 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
 				x>=(row-b1)/a1 && x<=(row-b2)/a2){
 				
 				draw_pixel(x,row,image,color_2);
+				
 			}
-			if(row<=max_point.y && row>=mid_point.y/* &&
-				x>=(row-b3)/a3*/ && x<=(row-b2)/a2){
-				//printf("%d %d\n",x,row);
+			
+			if(row<=max_point.y && row>=mid_point.y &&
+				x>=(row-b3)/a3 && x<=(row-b2)/a2 && left.y<=right.y){
+				//if(x<=(row-b3)/a3 && x>=(row-b1)/a1)
+				draw_pixel(x,row,image,color_2);
+			}else if(row<=max_point.y && row>=mid_point.y &&
+                                x<=(row-b3)/a3 && x>=(row-b1)/a1 && left.y>=right.y){
+				
 				draw_pixel(x,row,image,color_2);
 			}
-		//			puts("");
+		
 		}
 		
 	}
@@ -642,7 +656,7 @@ int main(int argc, char **argv) {
     //draw_collage(&image,&img);
 	my_Color c={251,2,7,255};
 	my_Color c2={0,255,0,255};
-	Point p1={300,200},p2={100,150},p3={200,400};
+	Point p1={359,300},p2={400,100},p3={150,200};
 	draw_triangle(&image,c,c2,p1,p2,p3,4);		
 //	draw_line(&image,c,4,p1,p2);
 //	find_rectangle(c,c2,&image);
