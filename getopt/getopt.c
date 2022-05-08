@@ -20,10 +20,11 @@ void printHelp(){
     printf("\nдля рисования треугольника введите --triangle и необходимые аргументы: \nкоординаты точек треугольника --point1 <x,y> --point2 <x,y> --point3 <x,y>"
            "\nцвет заливки --color_full <color> (если треугольник без заливки введите none) \nтолщина линии --thinkness <n> \nцвет линии --color_line color (*)");
     puts("");
-    printf("\nдля создания коллажа введите --collage и необходимые аргументы: \nизображение для коллажа -img <name.png> \nколичества по оси X --x_axis и по оси Y --y_axis");
+    printf("\nдля создания коллажа введите --collage и необходимые аргументы: \nизображение для коллажа --img <name.png> \nколичества по оси X --x_axis и по оси Y --y_axis");
     puts("");
     printf("\nдля находения самого большого прямоугольника введите  --rectangle и необходимые аргументы: \nего цвет --color_find <color> \nцвет для перекраски --color_full <color>\n");
     puts("");
+    printf("* цвета: blue, red, green, yellow, white, black\n");
     //    printf("getopt example\n");
 //    printf("-f <value> - final value\n");
 //    printf("-r - reverse\n");
@@ -168,27 +169,32 @@ int main(int argc, char* argv[]){
 
 
             int kol=optind;
+            if(argc==1){
 
+            }else{
+                printf("Введите изображение\n");
+            }
            if(kol==10&& config.func==4) {
                //line
-               printf("p=%d,%d p=%d,%d t=%d c=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.thinkness,config.color_line);
+               //printf("p=%d,%d p=%d,%d t=%d c=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.thinkness,config.color_line);
            } else
            if(kol==14 && config.func==1) {
                //trianngle
-               printf("p=%d,%d p=%d,%d p=%d,%d t=%d c=%s c_f=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.point3.x,config.point3.y,config.thinkness,config.color_line,config.color_full);
+               //printf("p=%d,%d p=%d,%d p=%d,%d t=%d c=%s c_f=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.point3.x,config.point3.y,config.thinkness,config.color_line,config.color_full);
 
            }else
            if(kol==8 &&config.func==3){
-               printf("img=%s x=%d y=%d\n",config.img,config.axis_x,config.axis_y);
+               //printf("img=%s x=%d y=%d\n",config.img,config.axis_x,config.axis_y);
            }else
            if(kol==6 && config.func==2){
-               printf("c=%s c_find=%s\n",config.color_full,config.color_find);
+               //printf("c=%s c_find=%s\n",config.color_full,config.color_find);
            }
 
            else{
                printf("НЕ КОРРЕКТНЫЙ ВВОД ДАННЫХ\n\n");
                printHelp();
            }
+
 
     }else{
         printHelp();
