@@ -42,7 +42,7 @@ void read_png_file(char *file_name, struct My_png *image) {
     if (!fp){
         // Some error handling: file could not be opened
 
-	puts("file could not be open");
+	puts("file could not be open r");
 	fclose(fp);
 	return;
     }
@@ -808,6 +808,16 @@ int isOValid(char* name){
 	//printf("%d",regexec(&regexComp, name, 0, NULL, 0) == 0);
         return regexec(&regexComp, name, 0, NULL, 0) == 0;
 } 
+int isColorValid(char* color){
+	if(strcmp(color,"yellow")==0 ||strcmp(color,"red")==0 || strcmp(color,"green")==0 || 
+		strcmp(color,"blue")==0 || strcmp(color,"white")==0 ||strcmp(color,"black")==0 ||strcmp(color,"none")==0){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
 // -triangle -(x,y) -(x2,y2) -(x3,y3) -full_color -thinkness
 // -rectangle -color_find -color_full
 // -collage -N -M
@@ -910,59 +920,115 @@ int main(int argc, char* argv[]){
             case 'a':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                p.x=atoi(istr);
+		if(istr!=NULL && atoi(istr)>0)
+                	p.x=atoi(istr);
+		else{
+			puts("point1 имеет не отрицательные аргументы");
+			return 0;
+		}
                 istr=strtok(NULL,",\n ");
-                p.y= atoi(istr);
-                config.point1=p ;
-                //printf("'%d %d'",config.point1.x,config.point1.y);
+		if(istr!=NULL && atoi(istr)>0)
+                	p.y= atoi(istr);
+		else{
+			puts("point1 имеет не отрицательные аргументы");
+			return 0;
+		}
+		
+                config.point1=p;
+                
                 break;
             case 'b':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                p.x=atoi(istr);
-                istr=strtok(NULL,",\n ");
-                p.y= atoi(istr);
+		if(istr!=NULL && atoi(istr)>0)
+                	p.x=atoi(istr);
+                else{
+			puts("point2 имеет не отрицательные аргументы");
+                        return 0;
+		}
+		istr=strtok(NULL,",\n ");
+		
+		if(istr!=NULL && atoi(istr)>0)
+                	p.y= atoi(istr);
+		else{
+			puts("point2 имеет не отрицательные аргументы");
+                        return 0;
+		}
                 config.point2=p ;
                 break;
             case 'p':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                p.x=atoi(istr);
+		if(istr!=NULL && atoi(istr)>0)
+                	p.x=atoi(istr);
+		else{
+			puts("point3 имеет не отрицательные аргументы");
+                        return 0;
+		}
                 istr=strtok(NULL,",\n ");
-                p.y= atoi(istr);
+		if(istr!=NULL && atoi(istr)>0)
+                	p.y= atoi(istr);
+		else{
+			puts("point3 имеет не отрицательные аргументы");
+                        return 0;
+		}
                 config.point3=p ;
                 break;
 
             case 's':
+		if(!atoi(optarg) || atoi(optarg)<=0){
+			puts("thinkness не отрицательное число");
+			return 0;
+		}
                 config.thinkness= atoi(optarg);
                 break;
             case 'q':
-                strcpy(config.color_line,optarg);
+		if(isColorValid(optarg))
+                	strcpy(config.color_line,optarg);
+		else{
+			puts("не правильный формат цвета (color_line)");
+			return 0;
+		}
                 break;
             case 'u':
-                strcpy(config.color_full,optarg);
+		if(isColorValid(optarg))
+                	strcpy(config.color_full,optarg);
+		else{
+			puts("не правильный формат цвета (color_full)");
+			return 0;	
+		}
                 break;
             case 'f':
-                strcpy(config.color_find,optarg);
+		if(isColorValid(optarg))
+                	strcpy(config.color_find,optarg);
+		else{
+			puts("не правильный формат цвета (color_find)");
+			return 0;
+		}
                 break;
             case 'x':
-		if(!atoi(optarg)){
-			puts("аргумент --x_axis это число");
+		if(!atoi(optarg) || atoi(optarg)<=0){
+			puts("аргумент --x_axis это не отрицательное число");
 
 			return 0;
 		}
                 config.axis_x= atoi(optarg);
                 break;
             case 'y':
-		if(!atoi(optarg)){
-                        puts("аргумент --y_axis это число");
+		if(!atoi(optarg)  || atoi(optarg)<=0){
+                        puts("аргумент --y_axis это не отрицательное число");
 
                         return 0;
                 }
                 config.axis_y= atoi(optarg);
                 break;
             case 'i':
+		if(isPngValid(optarg))
                 strcpy(config.img,optarg);
+		else{
+			puts("ошибка изображения");
+			return 0;
+		}
                 break;
 	    case 'o':
 		break;
@@ -971,11 +1037,13 @@ int main(int argc, char* argv[]){
                 printHelp();
                 return 0;
             case 0:
-                printf("->%s\n",longOpts[longIndex].name);
+		printHelp();
+                //printf("->%s\n",longOpts[longIndex].name);
         }
         opt = getopt_long(argc, argv, opts, longOpts, &longIndex);
     }
-
+    //struct My_png image;
+    //read_png_file(argv[1], &image);
 
    
     if(strcmp(argv[1],"--line")==0 || strcmp(argv[1],"--rectangle")==0 || strcmp(argv[1],"--collage")==0 ||strcmp(argv[1],"--triangle")==0||
@@ -988,9 +1056,12 @@ int main(int argc, char* argv[]){
 		//printf("%d\n",optind);
 	   // for(int i=0; i<argc; i++)
 	//	printf(">>%s\n", argv[i]);
+		struct My_png image;
             if(argc==1){
 		if(isPngValid(argv[0])){
 			strcpy(name_png,argv[0]);
+			//puts(name_png);
+    			//read_png_file(name_png, &image);
 		}else{
 			printf("Не верный тип изображения");
 			return 0;
@@ -1001,14 +1072,17 @@ int main(int argc, char* argv[]){
             }
            if(kol==10&& config.func==4) {
                //line
-
+		read_png_file(name_png,&image);
+		my_Color ccc={255,0,0,0};
+                draw_line(&image,ccc,config.thinkness,config.point1,config.point2);
+                write_png_file(name_png,&image);
 		
                //printf("p=%f,%f p=%f,%f t=%d c=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.thinkness,config.color_line);
            } else
            if(kol==14 && config.func==1) {
                //trianngle
                //printf("p=%d,%d p=%d,%d p=%d,%d t=%d c=%s c_f=%s\n",config.point1.x,config.point1.y,config.point2.x,config.point2.y,config.point3.x,config.point3.y,config.thinkness,config.color_line,config.color_full);
-
+		
            }else
            if(kol==8 &&config.func==3){
 		puts("okokokkko");
@@ -1025,6 +1099,7 @@ int main(int argc, char* argv[]){
 
 
     }else{
+	
         printHelp();
         return 0;
     }
