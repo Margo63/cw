@@ -1,4 +1,4 @@
-
+/*
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,6 +6,8 @@
 #include <math.h>
 #define PNG_DEBUG 3
 #include </usr/local/include/png.h>
+//gcc -L /usr/local/include main.c -lpng
+//#include <png.h>
 #include <string.h>
 #include <getopt.h>
 #include<regex.h>
@@ -32,9 +34,15 @@ struct my_Color{
     int b;
     int alpha;
 }typedef my_Color;
+*/
+
+#include "info_lib.h"
+#include "line.h"
+
 
 int read_png_file(char *file_name, struct My_png *image) {
-    int x,y;
+    //int x,
+    int y;
     char header[8];    // 8 is the maximum size that can be checked
 
     /* open file and test for it being a png */
@@ -113,7 +121,8 @@ int read_png_file(char *file_name, struct My_png *image) {
 
 
 int write_png_file(char *file_name, struct My_png *image) {
-    int x,y;
+    //int x,
+    int y;
     /* create file */
     FILE *fp = fopen(file_name, "wb");
     if (!fp){
@@ -194,7 +203,7 @@ int write_png_file(char *file_name, struct My_png *image) {
     fclose(fp);
     return 0;
 }
-
+/*
 void draw_pixel(int x,int y,struct My_png *image,my_Color color){
     png_byte *row=image->row_pointers[y];
     png_byte *ptr =&(row[x*4]);
@@ -203,6 +212,8 @@ void draw_pixel(int x,int y,struct My_png *image,my_Color color){
     ptr[2]=color.b;
     ptr[3]=color.alpha;
 }
+*/
+/*
 void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1,struct Point p2) {
 
     if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
@@ -295,8 +306,8 @@ void draw_line(struct My_png *image,my_Color color,int thinkness,struct Point p1
 
 
 }
-
-void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point point1,Point point2,Point point3,int thinkness){
+*/
+void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point point1,Point point2,Point point3,int thickness){
 
     if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
         puts("input file's color type RGB but must be RGBA");
@@ -345,7 +356,7 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
 			max_point=point2;
 		}
 	}
-	else{	
+	else{
 	if(point2.y<=point3.y){
 		min_point=point2;
 		 if(point3.y<point1.y){
@@ -366,7 +377,7 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
                         mid_point=point2;
                         max_point=point1;
                 }
-	
+
 	}}}*/
     Point right,left;
     if(mid_point.x>=max_point.x){
@@ -416,10 +427,10 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
     }
 
 //	printf("a1=%f b1=%f a2=%f b2=%f a3=%f b3=%f",a1,b1,a2,b2,a3,b3);
-//	printf("\nmin=(%f, %f) left=(%f, %f) right=(%f, %f)\n",min_point.x,min_point.y,left.x,left.y,right.x,right.y);	
+//	printf("\nmin=(%f, %f) left=(%f, %f) right=(%f, %f)\n",min_point.x,min_point.y,left.x,left.y,right.x,right.y);
 
     if(color_2.r==0 && color_2.g==0 && color_2.b==0 && color_2.alpha==0){
-        return ;
+        
     }else{
         for(int row=0;row<image->height;row++){
             for(int x=0;x<image->width;x++){
@@ -506,7 +517,7 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
 
     }
     int old_x1=min_point.x,old_x2=left.x,old_y2=left.y,old_y1=min_point.y,old_x3=right.x,old_y3=right.y;
-    for(int q=0;q<thinkness;q++){
+    for(int q=0;q<thickness;q++){
         if(min_point.x-left.x<0){
 
             //	draw_line(image,color_1,1,min_point,left);
@@ -527,11 +538,12 @@ void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point 
     //min_point.y=old_y1;
     //left.x=old_x2;
     //left.y=old_y2;
-    draw_line(image,color_1,thinkness,min_point,left);
-    draw_line(image,color_1,thinkness,min_point,right);
-    draw_line(image,color_1,thinkness,right,left);
+    
+    draw_line(image,color_1,thickness,min_point,left);
+    draw_line(image,color_1,thickness,min_point,right);
+    draw_line(image,color_1,thickness,right,left);
 }
-
+/*
 void draw_collage(struct My_png *image,struct My_png *img,int repeat_X,int repeat_Y){
     if (png_get_color_type(image->png_ptr, image->info_ptr) == PNG_COLOR_TYPE_RGB){
         puts("input file's color type RGB but must be RGBA");
@@ -674,15 +686,28 @@ void draw_collage(struct My_png *image,struct My_png *img,int repeat_X,int repea
         }
 
     }
-}
+}*/
 void new_collage(int repX,int repY,struct My_png *image,struct My_png *img){
+
     int new_width =repX*(img->width);
     int new_height=repY*(img->height);
-
+    //printf("%d %d\n",new_height,new_width);
     int rep_x=0;
     int rep_y=0;
-    //image->height=new_height;
-    //image->width=new_width;
+    int old_h=image->height;
+    int old_w=image->width;
+
+    image->height=new_height;
+    image->width=new_width;
+
+    image->row_pointers=realloc(image->row_pointers,image->height*sizeof(png_bytep));
+    for(int j=0;j<old_h;j++){
+	free(image->row_pointers[j]);	
+    }
+    for(int i=0;i<image->height;i++){
+        image->row_pointers[i]=calloc(sizeof(png_byte)*4,image->width);
+    }
+
     for(int y=0;y<image->height;y++){
         for(int x=0;x<image->width;x++){
             png_byte *row_i=image->row_pointers[y];
@@ -817,7 +842,7 @@ void find_rectangle(my_Color find_color,my_Color full_color,struct My_png *image
         puts("нет прямоугольника заданного цвета");
         return;
     }
-//	printf("%d\n",kol_rec);	
+//	printf("%d\n",kol_rec);
     Rectangle max=list_rec[0];
     for(int q=1;q<kol_rec;q++){
         if(max.width*max.height<list_rec[q].width*list_rec[q].height){
@@ -936,13 +961,20 @@ my_Color getColor(char * color){
     return c;
 
 }
-
+int checkInt(char * word){
+	if(strlen(word)>5)return 1;
+	return 0;
+}
+int checkStr(char * word){
+	if(strlen(word)>95)return 1;
+	return 0;
+}
 void printHelp(){
 
-    printf("для рисования линии введите --line и необходимые аргументы: \nкоординаты начала и конца --point1 <x,y> --point2 <x,y> \nтолщина линии --thinkness <n> \nцвет линии --color_line <color> (*)");
+    printf("для рисования линии введите --line и необходимые аргументы: \nкоординаты начала и конца --point1 <x,y> --point2 <x,y> \nтолщина линии --thickness <n> \nцвет линии --color_line <color> (*)");
     puts("");
     printf("\nдля рисования треугольника введите --triangle и необходимые аргументы: \nкоординаты точек треугольника --point1 <x,y> --point2 <x,y> --point3 <x,y>"
-           "\nцвет заливки --color_full <color> (если треугольник без заливки введите none) \nтолщина линии --thinkness <n> \nцвет линии --color_line color (*)");
+           "\nцвет заливки --color_full <color> (если треугольник без заливки введите none) \nтолщина линии --thickness <n> \nцвет линии --color_line color (*)");
     puts("");
     printf("\nдля создания коллажа введите --collage и необходимые аргументы: \nизображение для коллажа --img <name.png> \nколичества по оси X --x_axis и по оси Y --y_axis");
     puts("");
@@ -959,7 +991,7 @@ struct Configs{
     Point point1;
     Point point2;
     Point point3;
-    int thinkness;
+    int thickness;
     int func;
     int axis_x;
     int axis_y;
@@ -971,6 +1003,7 @@ int main(int argc, char* argv[]){
         printHelp();
         return 0;
     }
+//	check();
 //    if(!isOValid(argv[0])){
 //        puts("не введен исполняемы файл");
 //        return 0;
@@ -988,7 +1021,7 @@ int main(int argc, char* argv[]){
             {"point1",1,NULL,'a'},
             {"point2",1,NULL,'b'},
             {"point3",1,NULL,'p'},
-            {"thinkness",1,NULL,'s'},
+            {"thickness",1,NULL,'s'},
             {"color_full",1,NULL,'u'},
 
             {"color_find",1,NULL,'f'},
@@ -1024,14 +1057,16 @@ int main(int argc, char* argv[]){
             case 'a':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                if(istr!=NULL && atoi(istr)>=0)
+		//puts(strlen(istr));
+                if(istr!=NULL && atoi(istr)>=0 && checkInt(istr)==0)
                     p.x=atoi(istr);
                 else{
                     puts("point1 имеет не отрицательные аргументы или значение слишком большое");
                     return 0;
                 }
                 istr=strtok(NULL,",\n ");
-                if(istr!=NULL && atoi(istr)>=0)
+		//puts(strlen(istr));
+                if(istr!=NULL && atoi(istr)>=0 && checkInt(istr)==0)
                     p.y= atoi(istr);
                 else{
                     puts("point1 имеет не отрицательные аргументы или значение слишком большое");
@@ -1044,7 +1079,7 @@ int main(int argc, char* argv[]){
             case 'b':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                if(istr!=NULL && atoi(istr)>=0)
+                if(istr!=NULL && atoi(istr)>=0 && checkInt(istr)==0 )
                     p.x=atoi(istr);
                 else{
                     puts("point2 имеет не отрицательные аргументы или значение слишком большое");
@@ -1052,7 +1087,7 @@ int main(int argc, char* argv[]){
                 }
                 istr=strtok(NULL,",\n ");
 
-                if(istr!=NULL && atoi(istr)>=0)
+                if(istr!=NULL && atoi(istr)>=0 && checkInt(istr)==0)
                     p.y= atoi(istr);
                 else{
                     puts("point2 имеет не отрицательные аргументы или значение слишком большое");
@@ -1063,7 +1098,7 @@ int main(int argc, char* argv[]){
             case 'p':
                 strcpy(point,optarg);
                 istr= strtok(point,",\n ");
-                if(istr!=NULL && atoi(istr)>=0)
+                if(istr!=NULL && atoi(istr)>=0 && checkInt(istr)==0)
                     p.x=atoi(istr);
                 else{
                     puts("point3 имеет не отрицательные аргументы или значение слишком большое");
@@ -1071,7 +1106,7 @@ int main(int argc, char* argv[]){
                 }
                 istr=strtok(NULL,",\n ");
 
-                if(istr!=NULL && atoi(istr)>=0)
+                if(istr!=NULL && atoi(istr)>=0&& checkInt(istr)==0)
                     p.y= atoi(istr);
                 else{
                     puts("point3 имеет не отрицательные аргументы или значение слишком большое");
@@ -1081,11 +1116,11 @@ int main(int argc, char* argv[]){
                 break;
 
             case 's':
-                if(!atoi(optarg) || atoi(optarg)<=0 ){
-                    puts("thinkness не отрицательное число");
+                if(!atoi(optarg) || atoi(optarg)<=0 ||  checkInt(istr)==1){
+                    puts("thickness не отрицательное число");
                     return 0;
                 }
-                config.thinkness= atoi(optarg);
+                config.thickness= atoi(optarg);
                 break;
             case 'q':
                 if(isColorValid(optarg))
@@ -1112,7 +1147,7 @@ int main(int argc, char* argv[]){
                 }
                 break;
             case 'x':
-                if(!atoi(optarg) || atoi(optarg)<=0){
+                if(!atoi(optarg) || atoi(optarg)<=0 ||  checkInt(optarg)==1){
                     puts("аргумент --x_axis это не отрицательное число");
 
                     return 0;
@@ -1120,7 +1155,7 @@ int main(int argc, char* argv[]){
                 config.axis_x= atoi(optarg);
                 break;
             case 'y':
-                if(!atoi(optarg)  || atoi(optarg)<=0){
+                if(!atoi(optarg)  || atoi(optarg)<=0 || checkInt(optarg)==1){
                     puts("аргумент --y_axis это не отрицательное число");
 
                     return 0;
@@ -1128,7 +1163,7 @@ int main(int argc, char* argv[]){
                 config.axis_y= atoi(optarg);
                 break;
             case 'i':
-                if(isPngValid(optarg))
+                if(isPngValid(optarg) && checkStr(optarg)==0)
                     strcpy(config.img,optarg);
                 else{
                     puts("ошибка изображения");
@@ -1184,14 +1219,14 @@ int main(int argc, char* argv[]){
                 puts("значение координат слишком большие");
                 return 0;
             }
-            draw_line(&image,getColor(config.color_line),config.thinkness,config.point1,config.point2);
+            draw_line(&image,getColor(config.color_line),config.thickness,config.point1,config.point2);
             int check_w=write_png_file(name_png,&image);
             if(check_w==1)return 0;
 
         } else
         if(kol==14 && config.func==1) {
             //     puts("trianngle");
-            //void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point point1,Point point2,Point point3,int thinkness,int full){
+            //void draw_triangle(struct My_png *image,my_Color color_1,my_Color color_2,Point point1,Point point2,Point point3,int thickness,int full){
 
             int check_r=read_png_file(name_png,&image);
             if (check_r==1)return 0;
@@ -1199,7 +1234,7 @@ int main(int argc, char* argv[]){
                 puts("значение координат слишком большие");
                 return 0;
             }
-            draw_triangle(&image,getColor(config.color_line),getColor(config.color_full),config.point1,config.point2,config.point3,config.thinkness);
+            draw_triangle(&image,getColor(config.color_line),getColor(config.color_full),config.point1,config.point2,config.point3,config.thickness);
             int check_w=write_png_file(name_png,&image);
             if(check_w==1)return 0;
         }else
@@ -1222,7 +1257,7 @@ int main(int argc, char* argv[]){
         if(kol==6 && config.func==2){
             //puts("find_rectangle");
             //printf("c=%s c_find=%s\n",config.color_full,config.color_find);
-            struct My_png img;
+            //struct My_png img;
             int check_r=read_png_file(name_png,&image);
             if(check_r==1)return 0;
             find_rectangle(getColor(config.color_find),getColor(config.color_full),&image);
